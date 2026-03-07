@@ -1,0 +1,21 @@
+<div class="page">
+  <h1 class="page-title">{{t.profile.title}}</h1>
+  <p class="page-description">{{t.profile.description}}</p>
+
+  <div class="card">
+    <h2 class="card-title">{{t.profile.claimsTitle}}</h2>
+
+    <div class="info-list-vertical">
+      {{#each claims}}
+      <div class="info-list-item">
+        <div class="info-label">{{this.key}}</div>
+        {{#if this.isObject}}
+        <pre class="claim-json">{{this.value}}</pre>
+        {{else}}
+        <div class="info-value">{{this.value}}</div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+</div>

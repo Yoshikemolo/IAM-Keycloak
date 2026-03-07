@@ -1,0 +1,21 @@
+<div class="page">
+  <h1 class="page-title">{{t.home.title}}</h1>
+  <p class="page-subtitle">{{t.home.subtitle}}</p>
+  <p class="page-description">{{t.home.description}}</p>
+
+  {{#if isAuthenticated}}
+  <div class="home-authenticated">
+    <p class="home-greeting">{{t.home.welcome}}, {{user.displayName}}!</p>
+    <a href="/dashboard?lang={{lang}}" class="btn btn-primary">
+      {{t.home.goToDashboard}}
+    </a>
+  </div>
+  {{else}}
+  <div class="home-unauthenticated">
+    <p class="home-cta-text">{{t.home.ctaText}}</p>
+    <a href="/auth/login" class="btn btn-primary">
+      {{t.home.signIn}}
+    </a>
+  </div>
+  {{/if}}
+</div>

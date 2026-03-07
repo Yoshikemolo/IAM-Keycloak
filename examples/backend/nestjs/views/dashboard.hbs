@@ -1,0 +1,53 @@
+<div class="page">
+  <h1 class="page-title">{{t.dashboard.title}}</h1>
+  <p class="page-description">{{t.dashboard.welcome}}</p>
+
+  {{!-- User Information Card --}}
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h2 class="card-title">{{t.dashboard.userInfo}}</h2>
+    <dl class="info-list">
+      <dt>{{t.dashboard.name}}</dt>
+      <dd>{{user.displayName}}</dd>
+
+      <dt>{{t.dashboard.email}}</dt>
+      <dd>{{#if user.email}}{{user.email}}{{else}}{{t.dashboard.notProvided}}{{/if}}</dd>
+    </dl>
+  </div>
+
+  {{!-- Roles Card --}}
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h2 class="card-title">{{t.dashboard.roles}}</h2>
+
+    {{#if user.realmRoles.length}}
+    <div style="margin-bottom: var(--spacing-sm);">
+      <span class="section-heading" style="font-size: 0.875rem;">Realm Roles</span>
+      <div class="badge-group" style="margin-top: var(--spacing-xs);">
+        {{#each user.realmRoles}}
+        <span class="badge badge-realm">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{#if user.clientRoles.length}}
+    <div style="margin-bottom: var(--spacing-sm);">
+      <span class="section-heading" style="font-size: 0.875rem;">Client Roles</span>
+      <div class="badge-group" style="margin-top: var(--spacing-xs);">
+        {{#each user.clientRoles}}
+        <span class="badge badge-client">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
+    {{#unless user.roles.length}}
+    <p class="text-muted">{{t.dashboard.noRoles}}</p>
+    {{/unless}}
+  </div>
+
+  {{!-- Token Preview Card --}}
+  <div class="card">
+    <h2 class="card-title">{{t.dashboard.accessToken}}</h2>
+    <code class="token-preview">{{tokenPreview}}</code>
+  </div>
+</div>

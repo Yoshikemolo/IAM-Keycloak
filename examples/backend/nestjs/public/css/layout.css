@@ -1,0 +1,137 @@
+/* ==========================================================================
+ * layout.css
+ * Layout styles for the app shell: header, main content area, and footer.
+ * Mirrors the design language from the md-viewer project.
+ * ========================================================================== */
+
+/* ===== App Layout Shell ===== */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== Header ===== */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 var(--spacing-md);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Left side: logo + title */
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.app-header-logo {
+  height: 28px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.app-header-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Right side: controls (theme toggle, language selector, user actions) */
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* ===== Main Content ===== */
+
+.app-main {
+  flex: 1;
+  padding: var(--spacing-lg);
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ===== Footer ===== */
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Footer link styling */
+.footer-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
+/* Footer social icons row */
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Individual social icon wrapper */
+.footer-social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.footer-social-icon:hover {
+  color: var(--accent-primary);
+}
+
+/* Footer license text - no special style, inline with footer content */
+.footer-license {
+  /* inherits footer defaults */
+}
+
+/* ===== Ximplicity SVG Icon ===== */
+
+/* The Ximplicity logo uses a circle with a cutout X shape */
+.xim-circle {
+  fill: var(--text-muted);
+  stroke: var(--text-muted);
+  transition: fill var(--transition-fast), stroke var(--transition-fast);
+}
+
+/* The X cutout uses the surface color to create the knockout effect */
+.xim-x {
+  fill: var(--bg-surface);
+}
+
+/* Hover state turns the circle accent-colored */
+.footer-social-icon:hover .xim-circle {
+  fill: var(--accent-primary);
+  stroke: var(--accent-primary);
+}
