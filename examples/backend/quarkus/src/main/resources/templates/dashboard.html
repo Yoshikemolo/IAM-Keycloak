@@ -1,0 +1,57 @@
+{#include base}
+
+{#title}{messages.get('dashboard.title') ?: 'Dashboard'} - {messages.get('app.title') ?: 'IAM Quarkus Example'}{/title}
+
+{#content}
+<div class="page">
+  <h1 class="page-title">{messages.get('dashboard.title') ?: 'Dashboard'}</h1>
+  <p class="page-description">{messages.get('dashboard.welcome').replace('\{0\}', displayName)}</p>
+
+  <!-- User Information Card -->
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h2 class="card-title">{messages.get('dashboard.userInfo') ?: 'User Information'}</h2>
+    <dl class="info-list">
+      <dt>{messages.get('dashboard.name') ?: 'Name'}</dt>
+      <dd>{fullName}</dd>
+
+      <dt>{messages.get('dashboard.email') ?: 'Email'}</dt>
+      <dd>{email}</dd>
+
+      <dt>{messages.get('dashboard.roles') ?: 'Roles'}</dt>
+      <dd>
+        {#if roles.isEmpty()}
+        <span class="text-muted">{messages.get('dashboard.noRoles') ?: 'No roles assigned'}</span>
+        {#else}
+        <div class="badge-group">
+          {#for role in roles}
+          <span class="badge {#if role == 'admin'}badge-admin{#else}badge-user{/if}">{role}</span>
+          {/for}
+        </div>
+        {/if}
+      </dd>
+    </dl>
+  </div>
+
+  <!-- Token Information Card -->
+  <div class="card">
+    <h2 class="card-title">{messages.get('dashboard.tokenInfo') ?: 'Token Information'}</h2>
+    <dl class="info-list">
+      <dt>{messages.get('dashboard.tokenExpiry') ?: 'Token Expiry'}</dt>
+      <dd>
+        {#if secondsRemaining > 0}
+        <span class="token-countdown">{messages.get('dashboard.expiresIn').replace('\{0\}', secondsRemaining.toString())}</span>
+        {#else}
+        <span class="text-muted">{messages.get('dashboard.expired') ?: 'Token has expired'}</span>
+        {/if}
+      </dd>
+
+      <dt>{messages.get('dashboard.accessToken') ?: 'Access Token (preview)'}</dt>
+      <dd>
+        <code class="token-preview">{tokenPreview}</code>
+      </dd>
+    </dl>
+  </div>
+</div>
+{/content}
+
+{/include}

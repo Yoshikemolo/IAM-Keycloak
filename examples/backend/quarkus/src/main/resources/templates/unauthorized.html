@@ -1,0 +1,14 @@
+{#include base}
+
+{#title}{messages.get('unauthorized.title') ?: 'Access Denied'} - {messages.get('app.title') ?: 'IAM Quarkus Example'}{/title}
+
+{#content}
+<div class="page">
+  <h1 class="page-title" style="color: var(--accent-red);">{messages.get('unauthorized.title') ?: 'Access Denied'}</h1>
+  <p class="page-description">{messages.get('unauthorized.message') ?: 'You do not have permission to view this page.'}</p>
+
+  <a href="/" class="btn btn-primary">{messages.get('unauthorized.backHome') ?: 'Back to Home'}</a>
+</div>
+{/content}
+
+{/include}
