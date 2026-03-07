@@ -1,0 +1,93 @@
+{
+  "app": {
+    "title": "Ejemplo IAM Vue",
+    "description": "Ejemplo de gestion de identidad y acceso con Keycloak"
+  },
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "admin": "Admin",
+    "profile": "Perfil",
+    "login": "Iniciar sesion",
+    "logout": "Cerrar sesion"
+  },
+  "header": {
+    "login": "Iniciar Sesion",
+    "logout": "Cerrar Sesion",
+    "toggleTheme": "Cambiar tema",
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "footer": {
+    "copyright": "Ximplicity",
+    "license": "Licencia MIT.",
+    "builtWith": "Construido con Vue y Keycloak"
+  },
+  "home": {
+    "title": "Demo de Gestion de Identidad y Acceso",
+    "welcome": "Bienvenido a la demo de IAM",
+    "subtitle": "Autenticacion segura con Keycloak",
+    "description": "Esta aplicacion demuestra la autenticacion OpenID Connect con Keycloak usando Vue 3.5 y oidc-client-ts.",
+    "greeting": "Bienvenido de nuevo, {name}!",
+    "goToDashboard": "Ir al Panel",
+    "ctaText": "Inicia sesion con Keycloak para explorar las areas protegidas de esta demo.",
+    "signIn": "Iniciar Sesion",
+    "loginPrompt": "Por favor, inicia sesion para acceder a la aplicacion completa."
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "welcome": "Bienvenido, {name}",
+    "userInfo": "Informacion del Usuario",
+    "name": "Nombre",
+    "email": "Correo electronico",
+    "notProvided": "No proporcionado",
+    "roles": "Roles",
+    "realmRole": "Rol del realm",
+    "noRoles": "Sin roles asignados",
+    "tokenExpiry": "Expiracion del Token",
+    "expiresIn": "Expira en {time}",
+    "expired": "El token ha expirado",
+    "accessToken": "Token de Acceso (vista previa)",
+    "tokenInfo": "Informacion del token"
+  },
+  "admin": {
+    "title": "Administracion",
+    "welcome": "Bienvenido, {name}. Tienes acceso administrativo.",
+    "panelTitle": "Panel de Administracion",
+    "panelDescription": "Esta seccion solo es visible para usuarios con el rol de administrador. A continuacion se muestran las acciones administrativas disponibles.",
+    "actionUsers": "Gestionar usuarios",
+    "actionRoles": "Gestionar roles",
+    "actionSettings": "Configuracion del sistema",
+    "description": "Esta seccion esta restringida a usuarios con el rol de administrador.",
+    "onlyAdmins": "Solo los administradores pueden ver y gestionar esta pagina."
+  },
+  "profile": {
+    "title": "Perfil",
+    "description": "Conjunto completo de claims de tu token de identidad OIDC.",
+    "claimsTitle": "Claims del Token",
+    "email": "Correo electronico",
+    "name": "Nombre completo",
+    "roles": "Roles asignados",
+    "tokenExpiry": "El token expira"
+  },
+  "unauthorized": {
+    "title": "Acceso Denegado",
+    "message": "No tienes permiso para ver esta pagina. Contacta con tu administrador si crees que es un error.",
+    "backHome": "Volver al Inicio"
+  },
+  "auth": {
+    "loginButton": "Iniciar sesion con Keycloak",
+    "logoutButton": "Cerrar sesion",
+    "unauthorized": "No autorizado",
+    "unauthorizedDesc": "No tienes permiso para acceder a esta pagina. Contacta a un administrador si crees que esto es un error."
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "toggle": "Cambiar tema"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salio mal. Por favor, intentalo de nuevo.",
+    "back": "Volver"
+  }
+}
