@@ -1,0 +1,75 @@
+------------------------------------------------------------------------
+ X-IAM Keycloak has been deployed.
+------------------------------------------------------------------------
+
+Chart:       {{ .Chart.Name }}-{{ .Chart.Version }}
+App version: {{ .Chart.AppVersion }}
+Release:     {{ .Release.Name }}
+Namespace:   {{ .Release.Namespace }}
+
+------------------------------------------------------------------------
+ Access
+------------------------------------------------------------------------
+
+{{- if .Values.ingress.enabled }}
+Keycloak is exposed via Ingress:
+
+{{- range .Values.ingress.hosts }}
+  URL: https://{{ .host }}
+{{- end }}
+
+Ensure DNS records point to the Ingress controller's external IP.
+TLS is {{ if .Values.ingress.tls }}enabled{{ else }}disabled -- configure ingress.tls for production{{ end }}.
+{{- else }}
+Keycloak is only accessible inside the cluster.
+To reach it from your workstation, run:
+
+  kubectl port-forward svc/{{ include "xiam-keycloak.fullname" . }} 8080:{{ .Values.service.port }} \
+    -n {{ .Release.Namespace }}
+
+Then open http://localhost:8080 in your browser.
+{{- end }}
+
+------------------------------------------------------------------------
+ Admin Console
+------------------------------------------------------------------------
+
+The Keycloak admin console is available at:
+
+  /admin/master/console/
+
+Admin credentials are stored in Secret "{{ include "xiam-keycloak.adminSecretName" . }}".
+
+To retrieve the admin password:
+
+  kubectl get secret {{ include "xiam-keycloak.adminSecretName" . }} \
+    -n {{ .Release.Namespace }} \
+    -o jsonpath='{.data.KEYCLOAK_ADMIN_PASSWORD}' | base64 -d
+
+------------------------------------------------------------------------
+ Health and Metrics
+------------------------------------------------------------------------
+
+Health endpoints (port 9000):
+
+  Liveness:  /health/live
+  Readiness: /health/ready
+  Startup:   /health/started
+
+{{- if .Values.metrics.enabled }}
+Prometheus metrics are available at:
+
+  http://{{ include "xiam-keycloak.fullname" . }}:9000/metrics
+{{- if .Values.metrics.serviceMonitor.enabled }}
+
+A ServiceMonitor has been created for automatic Prometheus scraping.
+{{- end }}
+{{- end }}
+
+------------------------------------------------------------------------
+ Verify the deployment
+------------------------------------------------------------------------
+
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+------------------------------------------------------------------------

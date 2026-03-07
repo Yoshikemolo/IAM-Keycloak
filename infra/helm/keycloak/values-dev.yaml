@@ -1,0 +1,126 @@
+# =========================================================================
+# values-dev.yaml -- Development environment overrides
+# =========================================================================
+# Usage:
+#   helm upgrade --install xiam-kc ./infra/helm/keycloak \
+#     -f ./infra/helm/keycloak/values.yaml \
+#     -f ./infra/helm/keycloak/values-dev.yaml \
+#     -n xiam-dev
+#
+# Characteristics:
+#   - Single replica, no HPA
+#   - Small resource footprint
+#   - DEBUG logging for troubleshooting
+#   - Relaxed probe thresholds
+#   - Network policy disabled for easier debugging
+# =========================================================================
+
+replicaCount: 1
+
+# -------------------------------------------------------------------------
+# Keycloak overrides
+# -------------------------------------------------------------------------
+keycloak:
+  hostname: "iam-dev.xiam.example.com"
+  hostnameStrict: "false"
+  logLevel: "DEBUG"
+  logFormat: "default"
+  optimized: false
+
+  database:
+    vendor: "postgres"
+    url: "jdbc:postgresql://postgres:5432/keycloak"
+    username: "keycloak"
+    password: "dev-password"
+
+  admin:
+    username: "admin"
+    password: "admin"
+
+# -------------------------------------------------------------------------
+# Resources -- minimal for development
+# -------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# -------------------------------------------------------------------------
+# Probes -- relaxed timings for slower dev environments
+# -------------------------------------------------------------------------
+startupProbe:
+  path: /health/started
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+
+livenessProbe:
+  path: /health/live
+  initialDelaySeconds: 0
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+readinessProbe:
+  path: /health/ready
+  initialDelaySeconds: 0
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 5
+
+# -------------------------------------------------------------------------
+# Autoscaling -- disabled in dev
+# -------------------------------------------------------------------------
+autoscaling:
+  enabled: false
+
+# -------------------------------------------------------------------------
+# PDB -- disabled (single replica)
+# -------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: false
+
+# -------------------------------------------------------------------------
+# Ingress
+# -------------------------------------------------------------------------
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+  hosts:
+    - host: iam-dev.xiam.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - iam-dev.xiam.example.com
+      secretName: xiam-keycloak-dev-tls
+
+# -------------------------------------------------------------------------
+# Network policy -- disabled for easier debugging
+# -------------------------------------------------------------------------
+networkPolicy:
+  enabled: false
+
+# -------------------------------------------------------------------------
+# Metrics -- enabled but no ServiceMonitor
+# -------------------------------------------------------------------------
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: false
+
+# -------------------------------------------------------------------------
+# ServiceAccount -- no Workload Identity in dev
+# -------------------------------------------------------------------------
+serviceAccount:
+  create: true
+  annotations: {}

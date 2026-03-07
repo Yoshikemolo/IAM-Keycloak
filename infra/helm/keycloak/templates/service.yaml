@@ -1,0 +1,41 @@
+{{/*
+==========================================================================
+service.yaml -- ClusterIP Service for Keycloak
+==========================================================================
+Exposes the Keycloak HTTP port (default 8080) and the management port
+(9000) inside the cluster.  The management port is used for health
+probes and Prometheus metrics scraping.
+*/}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "xiam-keycloak.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type | default "ClusterIP" }}
+  ports:
+    # -- Main HTTP port for application traffic
+    - name: http
+      port: {{ .Values.service.port | default 8080 }}
+      targetPort: http
+      protocol: TCP
+    # -- Management port for health probes and metrics
+    - name: management
+      port: 9000
+      targetPort: management
+      protocol: TCP
+    {{- if .Values.keycloak.cache.jgroupsPort }}
+    # -- JGroups port for Infinispan cluster communication
+    - name: jgroups
+      port: {{ .Values.keycloak.cache.jgroupsPort }}
+      targetPort: jgroups
+      protocol: TCP
+    {{- end }}
+  selector:
+    {{- include "xiam-keycloak.selectorLabels" . | nindent 4 }}

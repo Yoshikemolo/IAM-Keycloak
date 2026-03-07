@@ -1,0 +1,73 @@
+{{/*
+==========================================================================
+configmap.yaml -- Non-sensitive Keycloak configuration
+==========================================================================
+All KC_* environment variables that do not contain secrets are stored
+here.  Sensitive values (passwords, tokens) belong in secret.yaml.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "xiam-keycloak.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+data:
+  # -----------------------------------------------------------------------
+  # Database
+  # -----------------------------------------------------------------------
+  KC_DB: {{ .Values.keycloak.database.vendor | quote }}
+  KC_DB_URL: {{ .Values.keycloak.database.url | quote }}
+  KC_DB_USERNAME: {{ .Values.keycloak.database.username | quote }}
+  {{- if .Values.keycloak.database.schema }}
+  KC_DB_SCHEMA: {{ .Values.keycloak.database.schema | quote }}
+  {{- end }}
+
+  # -----------------------------------------------------------------------
+  # Hostname and proxy
+  # -----------------------------------------------------------------------
+  KC_HOSTNAME: {{ .Values.keycloak.hostname | quote }}
+  {{- if .Values.keycloak.hostnameAdmin }}
+  KC_HOSTNAME_ADMIN: {{ .Values.keycloak.hostnameAdmin | quote }}
+  {{- end }}
+  KC_HOSTNAME_STRICT: {{ .Values.keycloak.hostnameStrict | default "true" | quote }}
+  KC_PROXY_HEADERS: {{ .Values.keycloak.proxy | default "xforwarded" | quote }}
+  KC_HTTP_ENABLED: "true"
+
+  # -----------------------------------------------------------------------
+  # Health and metrics (management interface on port 9000)
+  # -----------------------------------------------------------------------
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: {{ .Values.metrics.enabled | default true | quote }}
+  KC_HTTP_MANAGEMENT_PORT: "9000"
+
+  # -----------------------------------------------------------------------
+  # Features
+  # -----------------------------------------------------------------------
+  {{- if .Values.keycloak.features }}
+  KC_FEATURES: {{ .Values.keycloak.features | quote }}
+  {{- end }}
+  {{- if .Values.keycloak.featuresDisabled }}
+  KC_FEATURES_DISABLED: {{ .Values.keycloak.featuresDisabled | quote }}
+  {{- end }}
+
+  # -----------------------------------------------------------------------
+  # Caching -- Infinispan with KUBE_PING for pod discovery
+  # -----------------------------------------------------------------------
+  KC_CACHE: {{ .Values.keycloak.cache.type | default "ispn" | quote }}
+  KC_CACHE_STACK: {{ .Values.keycloak.cache.stack | default "kubernetes" | quote }}
+  {{- if .Values.keycloak.cache.configFile }}
+  KC_CACHE_CONFIG_FILE: {{ .Values.keycloak.cache.configFile | quote }}
+  {{- end }}
+  JAVA_OPTS_KC_HEAP: {{ .Values.keycloak.javaOpts | default "-XX:MaxRAMPercentage=70.0" | quote }}
+
+  # -----------------------------------------------------------------------
+  # Logging
+  # -----------------------------------------------------------------------
+  KC_LOG_LEVEL: {{ .Values.keycloak.logLevel | default "INFO" | quote }}
+  KC_LOG_CONSOLE_OUTPUT: {{ .Values.keycloak.logFormat | default "default" | quote }}
+
+  # -----------------------------------------------------------------------
+  # Transaction / JTA
+  # -----------------------------------------------------------------------
+  KC_TRANSACTION_XA_ENABLED: {{ .Values.keycloak.transactionXaEnabled | default "false" | quote }}

@@ -1,0 +1,21 @@
+{{/*
+==========================================================================
+namespace.yaml -- Optional namespace creation for X-IAM Keycloak
+==========================================================================
+When namespace.create is true, this template creates the target namespace
+before any other resources are installed.  The resource is annotated with
+helm.sh/hook so that it is created during the pre-install phase and is
+never deleted by Helm.
+*/}}
+{{- if .Values.namespace.create }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace.name | default .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+  {{- with .Values.namespace.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
