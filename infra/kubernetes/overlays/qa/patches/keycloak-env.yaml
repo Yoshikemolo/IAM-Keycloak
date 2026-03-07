@@ -1,0 +1,18 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-env (qa)
+# Purpose: Sets INFO log level for QA -- detailed enough for troubleshooting
+#          test failures but not as verbose as DEBUG.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: keycloak
+          env:
+            - name: KC_LOG_LEVEL
+              value: INFO

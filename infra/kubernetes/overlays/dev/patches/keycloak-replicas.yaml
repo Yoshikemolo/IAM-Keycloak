@@ -1,0 +1,12 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-replicas (dev)
+# Purpose: Reduces Keycloak to a single replica for development. This saves
+#          compute resources while still allowing functional testing.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  replicas: 1

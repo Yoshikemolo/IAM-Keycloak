@@ -1,0 +1,68 @@
+# -----------------------------------------------------------------------------
+# ConfigMap: keycloak-config
+# Purpose: Non-sensitive configuration for the Keycloak server. These values
+#          are injected as environment variables via envFrom in the Deployment.
+#
+# Sensitive values (DB credentials, admin passwords) are stored in Kubernetes
+# Secrets and referenced individually in the Deployment spec.
+#
+# Environment-specific overrides are applied via Kustomize overlay patches.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/version: "26.4.2"
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+data:
+  # -- Database configuration --
+  # Keycloak supports postgres, mysql, mariadb, mssql, oracle.
+  KC_DB: postgres
+  KC_DB_URL_HOST: keycloak-db.iam-system.svc.cluster.local
+  KC_DB_URL_PORT: "5432"
+  KC_DB_URL_DATABASE: keycloak
+  KC_DB_SCHEMA: public
+
+  # -- Hostname configuration --
+  # The public hostname that Keycloak advertises in tokens and redirects.
+  KC_HOSTNAME: iam.example.com
+  KC_HOSTNAME_STRICT: "true"
+  KC_HOSTNAME_STRICT_HTTPS: "true"
+
+  # -- HTTP configuration --
+  # Keycloak runs behind an NGINX Ingress that terminates TLS.
+  KC_HTTP_ENABLED: "true"
+  KC_HTTP_PORT: "8080"
+  KC_PROXY_HEADERS: xforwarded
+
+  # -- Health and metrics --
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: "true"
+  KC_HTTP_MANAGEMENT_PORT: "9000"
+
+  # -- Cache / clustering (Infinispan with KUBE_PING discovery) --
+  KC_CACHE: ispn
+  KC_CACHE_STACK: kubernetes
+  # KUBE_PING requires the Keycloak service account to have permission to
+  # list pods in the namespace. See rbac/ manifests.
+  JAVA_OPTS_APPEND: >-
+    -Djgroups.dns.query=keycloak-jgroups.iam-system.svc.cluster.local
+    -Djgroups.kubernetes.namespace=iam-system
+    -Djgroups.kubernetes.labels=app.kubernetes.io/name=keycloak
+
+  # -- Logging --
+  KC_LOG_LEVEL: INFO
+  KC_LOG_CONSOLE_OUTPUT: json
+
+  # -- Feature flags --
+  # Enable token exchange for service-to-service delegation flows.
+  KC_FEATURES: token-exchange,admin-fine-grained-authz
+
+  # -- Transaction settings --
+  KC_TRANSACTION_XA_ENABLED: "false"

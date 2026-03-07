@@ -1,0 +1,46 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: allow-keycloak-to-db
+# Purpose: Allows Keycloak pods to connect to the PostgreSQL database on
+#          port 5432. This covers both in-cluster PostgreSQL and Cloud SQL
+#          Proxy sidecars.
+#
+# If using GCP Cloud SQL Auth Proxy as a sidecar, the egress target will be
+# localhost (127.0.0.1). For an in-cluster database, it targets pods labeled
+# with app.kubernetes.io/name=postgresql.
+#
+# For external databases (e.g., Cloud SQL via private IP), use ipBlock with
+# the database's CIDR range instead.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-keycloak-to-db
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  policyTypes:
+    - Egress
+  egress:
+    # Allow egress to in-cluster PostgreSQL pods.
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow egress to external database via private IP (Cloud SQL).
+    # Uncomment and adjust the CIDR block for your environment.
+    # - to:
+    #     - ipBlock:
+    #         cidr: 10.0.0.0/8
+    #   ports:
+    #     - protocol: TCP
+    #       port: 5432

@@ -1,0 +1,12 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-replicas (qa)
+# Purpose: Sets 2 replicas for the QA environment to validate high-availability
+#          behavior and clustering while keeping costs moderate.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  replicas: 2

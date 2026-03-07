@@ -1,0 +1,23 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-resources (prod)
+# Purpose: Sets production-grade resource requests and limits. These values
+#          are sized for handling ~400 concurrent users with headroom for
+#          traffic spikes, token exchange operations, and admin console usage.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: keycloak
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2Gi"
+            limits:
+              cpu: "2000m"
+              memory: "4Gi"

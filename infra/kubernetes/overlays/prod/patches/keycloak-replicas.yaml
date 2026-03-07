@@ -1,0 +1,13 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-replicas (prod)
+# Purpose: Sets 3 replicas for production to ensure high availability across
+#          multiple availability zones. Combined with pod anti-affinity, this
+#          guarantees resilience against single-zone failures.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  replicas: 3

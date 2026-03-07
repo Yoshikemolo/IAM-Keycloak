@@ -1,0 +1,27 @@
+# -----------------------------------------------------------------------------
+# PodDisruptionBudget: keycloak
+# Purpose: Ensures that at least one Keycloak pod remains available during
+#          voluntary disruptions such as node drains, cluster upgrades, or
+#          rolling deployments.
+#
+# The minAvailable value is increased in production overlays to maintain
+# higher availability guarantees.
+# -----------------------------------------------------------------------------
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/version: "26.4.2"
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/instance: keycloak-iam

@@ -1,0 +1,44 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: allow-keycloak-jgroups
+# Purpose: Allows Keycloak pods to communicate with each other over JGroups
+#          for Infinispan distributed cache clustering. JGroups uses port 7800
+#          by default for the KUBE_PING discovery protocol.
+#
+# This is essential for session replication, cache invalidation, and
+# distributed locking across Keycloak replicas.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-keycloak-jgroups
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow inbound JGroups traffic from other Keycloak pods.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: keycloak
+      ports:
+        - protocol: TCP
+          port: 7800
+  egress:
+    # Allow outbound JGroups traffic to other Keycloak pods.
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: keycloak
+      ports:
+        - protocol: TCP
+          port: 7800

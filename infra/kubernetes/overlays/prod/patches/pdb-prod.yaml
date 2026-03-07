@@ -1,0 +1,14 @@
+# -----------------------------------------------------------------------------
+# Patch: pdb-prod
+# Purpose: Increases the PodDisruptionBudget minAvailable to 2 for production.
+#          This guarantees that at least 2 Keycloak pods remain running during
+#          voluntary disruptions (node drains, upgrades), ensuring continuous
+#          availability for authentication requests.
+# -----------------------------------------------------------------------------
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  minAvailable: 2

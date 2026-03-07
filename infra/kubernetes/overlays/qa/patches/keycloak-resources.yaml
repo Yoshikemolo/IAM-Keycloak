@@ -1,0 +1,22 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-resources (qa)
+# Purpose: Sets medium resource requests and limits for the QA environment.
+#          Balances realistic performance testing with cost efficiency.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: keycloak
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"

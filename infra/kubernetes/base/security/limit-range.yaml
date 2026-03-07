@@ -1,0 +1,45 @@
+# -----------------------------------------------------------------------------
+# LimitRange: iam-system-limits
+# Purpose: Sets default resource requests and limits for containers in the
+#          iam-system namespace. Any container that does not specify its own
+#          resource requests/limits will receive these defaults.
+#
+# This prevents pods from being scheduled without resource constraints,
+#          which could lead to resource starvation or noisy-neighbor issues.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: iam-system-limits
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: limit-range
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  limits:
+    # -- Container-level defaults --
+    - type: Container
+      # Default requests applied when none are specified.
+      defaultRequest:
+        cpu: "100m"
+        memory: "256Mi"
+      # Default limits applied when none are specified.
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      # Minimum resources a container can request.
+      min:
+        cpu: "50m"
+        memory: "64Mi"
+      # Maximum resources a container can consume.
+      max:
+        cpu: "4"
+        memory: "8Gi"
+
+    # -- Pod-level limits --
+    - type: Pod
+      max:
+        cpu: "8"
+        memory: "16Gi"

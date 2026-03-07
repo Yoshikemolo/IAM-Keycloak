@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------------------
+# Service: keycloak
+# Purpose: ClusterIP service that exposes the Keycloak HTTP port (8080) within
+#          the cluster. The Ingress controller routes external traffic to this
+#          service. A separate named port exposes the management endpoint for
+#          health checks and Prometheus scraping.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/version: "26.4.2"
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+  annotations:
+    # Prometheus scrape configuration for metrics collection.
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9000"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+  ports:
+    # Main HTTP port for user-facing and API traffic.
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP
+    # Management port for health probes and Prometheus metrics.
+    - name: management
+      port: 9000
+      targetPort: management
+      protocol: TCP

@@ -1,0 +1,27 @@
+# -----------------------------------------------------------------------------
+# Namespace: iam-system
+# Purpose: Dedicated namespace for the IAM platform (Keycloak and supporting
+#          services). Applies pod security standards at the namespace level to
+#          enforce a restricted security posture for all workloads.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: iam-system
+  labels:
+    # --- Kubernetes recommended labels ---
+    app.kubernetes.io/name: iam-system
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+    # --- Pod Security Admission (PSA) labels ---
+    # Enforce the "restricted" profile -- the most restrictive built-in policy.
+    # All pods must run as non-root, drop ALL capabilities, use a read-only
+    # root filesystem, and set seccomp to RuntimeDefault.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    # Warn on violations so operators see feedback in kubectl output.
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+    # Audit violations for cluster-level audit logging.
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
