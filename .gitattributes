@@ -3,23 +3,12 @@
 doc/** linguist-documentation
 planning/** linguist-documentation
 
-# Shell scripts - mark as devops tooling, not primary language
-*.sh linguist-detectable=false
+# Shell scripts - exclude from language stats
+*.sh linguist-vendored
 
 # DevOps/Config - exclude from language stats
-*.yml linguist-detectable=false
-*.yaml linguist-detectable=false
-*.json linguist-detectable=false
-Dockerfile linguist-detectable=false
-docker-compose*.yml linguist-detectable=false
-*.tf linguist-detectable=false
-
-# Ensure actual code languages are detected
-*.java linguist-detectable=true
-*.ts linguist-detectable=true
-*.py linguist-detectable=true
-*.cs linguist-detectable=true
-*.js linguist-detectable=true
-*.html linguist-detectable=true
-*.css linguist-detectable=true
-*.scss linguist-detectable=true
+*.yml linguist-vendored
+*.yaml linguist-vendored
+Dockerfile linguist-vendored
+docker-compose*.yml linguist-vendored
+*.tf linguist-vendored
