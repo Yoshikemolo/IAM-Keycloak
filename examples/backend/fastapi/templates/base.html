@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ t('app.title') }}{% endblock %}</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/css/variables.css" />
+  <link rel="stylesheet" href="/static/css/global.css" />
+  <link rel="stylesheet" href="/static/css/layout.css" />
+  <link rel="stylesheet" href="/static/css/components.css" />
+
+  <!-- Theme (applied early to avoid flash) -->
+  <script src="/static/js/theme.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    {% include "partials/header.html" %}
+
+    <main class="app-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+  </div>
+</body>
+</html>

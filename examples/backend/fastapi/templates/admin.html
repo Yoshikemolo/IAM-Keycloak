@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('admin.title') }} - {{ t('app.title') }}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">{{ t('admin.title') }}</h1>
+  <p class="page-subtitle">{{ t('admin.welcome', name=user.display_name) }}</p>
+
+  <div class="card">
+    <h2 class="card-title">{{ t('admin.panelTitle') }}</h2>
+    <p class="page-description">{{ t('admin.panelDescription') }}</p>
+
+    <ul class="admin-actions">
+      <li>{{ t('admin.actionUsers') }}</li>
+      <li>{{ t('admin.actionRoles') }}</li>
+      <li>{{ t('admin.actionSettings') }}</li>
+    </ul>
+  </div>
+
+  <p class="text-muted" style="margin-top: var(--spacing-lg);">
+    {{ t('admin.onlyAdmins') }}
+  </p>
+</div>
+{% endblock %}

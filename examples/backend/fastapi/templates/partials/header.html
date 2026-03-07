@@ -1,0 +1,50 @@
+{# --------------------------------------------------------------------------
+ # Header partial: logo, title, theme toggle, language selector, auth controls.
+ # -------------------------------------------------------------------------- #}
+
+<header class="app-header">
+  {# -------- Left: Logo + Title -------- #}
+  <a href="/" class="app-header-left" style="text-decoration: none;">
+    <img
+      id="header-logo"
+      src="/branding/dark-color-logo-with-claim.svg"
+      alt="Ximplicity"
+      class="app-header-logo"
+    />
+    <span class="app-header-title">{{ t('app.title') }}</span>
+  </a>
+
+  {# -------- Right: Controls -------- #}
+  <div class="app-header-right">
+    {# Theme toggle #}
+    <button
+      id="theme-toggle"
+      class="theme-toggle"
+      type="button"
+      title="{{ t('header.toggleTheme') }}"
+      aria-label="{{ t('header.toggleTheme') }}"
+    >&#9728;</button>
+
+    {# Language selector #}
+    <select
+      class="language-selector"
+      title="{{ t('header.selectLanguage') }}"
+      aria-label="{{ t('header.selectLanguage') }}"
+      onchange="window.location.href='?lang=' + this.value"
+    >
+      {% for loc in supported_locales %}
+      <option value="{{ loc }}" {% if loc == locale %}selected{% endif %}>
+        {{ loc | upper }}
+      </option>
+      {% endfor %}
+    </select>
+
+    {# Auth controls #}
+    {% if current_user %}
+      <span class="header-user-name">{{ current_user.display_name }}</span>
+      <a href="/auth/logout" class="btn btn-sm">{{ t('header.logout') }}</a>
+    {% else %}
+      <a href="/auth/login" class="btn btn-sm btn-primary">{{ t('header.login') }}</a>
+    {% endif %}
+  </div>
+</header>
