@@ -1,0 +1,187 @@
+###############################################################################
+# docker-compose.yml
+# Local development environment for the IAM platform.
+#
+# Services:
+#   - keycloak:   Keycloak 26.4.2 identity provider (port 8080)
+#   - postgresql: PostgreSQL 16 database backend (port 5432)
+#   - prometheus: Metrics collection and alerting (port 9090)
+#   - grafana:    Dashboards and visualization (port 3000)
+#
+# Usage:
+#   docker compose up -d
+#   docker compose down -v   # Remove volumes (reset data)
+#
+# Configuration:
+#   Copy .env.example to .env and adjust values before starting.
+###############################################################################
+
+networks:
+  iam-network:
+    driver: bridge
+    name: iam-network
+
+volumes:
+  postgresql-data:
+    name: iam-postgresql-data
+  prometheus-data:
+    name: iam-prometheus-data
+  grafana-data:
+    name: iam-grafana-data
+
+services:
+  # -------------------------------------------------------------------------
+  # PostgreSQL 16 -- Keycloak database backend
+  # -------------------------------------------------------------------------
+  postgresql:
+    image: postgres:16-alpine
+    container_name: iam-postgresql
+    restart: unless-stopped
+    networks:
+      - iam-network
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keycloak} -d ${POSTGRES_DB:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+
+  # -------------------------------------------------------------------------
+  # Keycloak 26.4.2 -- Identity and Access Management
+  # -------------------------------------------------------------------------
+  keycloak:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.keycloak
+    image: iam-keycloak:local
+    container_name: iam-keycloak
+    restart: unless-stopped
+    networks:
+      - iam-network
+    ports:
+      - "${KC_HTTP_PORT:-8080}:8080"
+      - "${KC_MGMT_PORT:-9000}:9000"
+    environment:
+      # -- Database connection -----------------------------------------------
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgresql:5432/${POSTGRES_DB:-keycloak}
+      KC_DB_USERNAME: ${POSTGRES_USER:-keycloak}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      KC_DB_SCHEMA: public
+      # -- Admin credentials (development only) ------------------------------
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:-admin}
+      # -- Server configuration ----------------------------------------------
+      KC_HOSTNAME: ${KC_HOSTNAME:-localhost}
+      KC_HOSTNAME_STRICT: "false"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_LOG_LEVEL: ${KC_LOG_LEVEL:-info}
+      KC_LOG_CONSOLE_OUTPUT: json
+      # -- Features -----------------------------------------------------------
+      KC_FEATURES: token-exchange,admin-fine-grained-authz,declarative-user-profile
+      # -- Realm import on startup -------------------------------------------
+      KC_SPI_IMPORT_DIR: /opt/keycloak/data/import
+    command: ["start-dev", "--import-realm"]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec curl --fail --silent http://localhost:9000/health/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+
+  # -------------------------------------------------------------------------
+  # Prometheus -- Metrics collection and alerting
+  # -------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: iam-prometheus
+    restart: unless-stopped
+    networks:
+      - iam-network
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ../config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../config/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+      - ../config/prometheus/recording-rules.yml:/etc/prometheus/recording-rules.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+
+  # -------------------------------------------------------------------------
+  # Grafana -- Dashboards and visualization
+  # -------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: iam-grafana
+    restart: unless-stopped
+    networks:
+      - iam-network
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "http://localhost:${GRAFANA_PORT:-3000}"
+      GF_LOG_MODE: console
+      GF_LOG_LEVEL: info
+    volumes:
+      - ../config/grafana/provisioning/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ../config/grafana/provisioning/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ../config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"

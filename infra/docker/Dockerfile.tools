@@ -1,0 +1,62 @@
+###############################################################################
+# Dockerfile.tools
+# Utility image for backup, restore, and operational tasks.
+#
+# Includes PostgreSQL 16 client tools, curl, jq, bash, and openssl.
+# Designed to run as non-root inside Kubernetes CronJobs or one-off pods
+# for database backup/restore, health probes, and API interactions.
+#
+# Build:
+#   docker build -f Dockerfile.tools -t iam-tools:latest .
+#
+# Run:
+#   docker run --rm iam-tools:latest pg_dump --version
+###############################################################################
+
+FROM alpine:3.20
+
+# -- OCI image labels -------------------------------------------------------
+LABEL org.opencontainers.image.title="X-IAM Tools"
+LABEL org.opencontainers.image.description="Utility image for IAM platform backup, restore, and operational tasks"
+LABEL org.opencontainers.image.vendor="Ximplicity Software Solutions S.L."
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/ximplicity/IAM-Keycloak"
+
+# -- Install required packages ----------------------------------------------
+# postgresql16-client: pg_dump, pg_restore, psql for database operations
+# curl: HTTP client for REST API calls and health checks
+# jq: JSON processor for parsing Keycloak Admin API responses
+# bash: Required for operational scripts (Alpine ships with ash by default)
+# openssl: TLS certificate generation and verification
+# ca-certificates: Root CA bundle for HTTPS connections
+# gzip: Compression for backup files
+# aws-cli or gsutil could be added here for cloud storage uploads
+RUN apk add --no-cache \
+        postgresql16-client \
+        curl \
+        jq \
+        bash \
+        openssl \
+        ca-certificates \
+        gzip \
+        tzdata \
+    && rm -rf /var/cache/apk/*
+
+# -- Create non-root user ---------------------------------------------------
+RUN addgroup -g 1000 tools \
+    && adduser -u 1000 -G tools -s /bin/bash -D tools
+
+# -- Create working directories ---------------------------------------------
+RUN mkdir -p /opt/tools/scripts /opt/tools/backups /tmp/work \
+    && chown -R tools:tools /opt/tools /tmp/work
+
+# -- Copy operational scripts if present -------------------------------------
+# Scripts are mounted or copied at runtime; this provides a default location.
+WORKDIR /opt/tools
+
+# -- Switch to non-root user ------------------------------------------------
+USER 1000
+
+# -- Default entrypoint ------------------------------------------------------
+ENTRYPOINT ["/bin/bash"]
+CMD ["-c", "echo 'IAM Tools container ready. Use with: docker run --rm iam-tools:latest <command>'"]

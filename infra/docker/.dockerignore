@@ -1,0 +1,76 @@
+# ===========================================================================
+# .dockerignore
+# Excludes files and directories from Docker build context to reduce
+# image size and prevent sensitive data from leaking into images.
+# ===========================================================================
+
+# -- Version control --------------------------------------------------------
+.git
+.gitignore
+.gitattributes
+
+# -- Documentation ----------------------------------------------------------
+*.md
+doc/
+planning/
+LICENSE
+
+# -- IDE and editor files ---------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# -- OS-generated files -----------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -- CI/CD configuration ---------------------------------------------------
+.github/
+.gitlab-ci.yml
+
+# -- Environment and secrets ------------------------------------------------
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.jks
+!.env.example
+
+# -- Build artifacts and caches --------------------------------------------
+node_modules/
+__pycache__/
+*.pyc
+target/
+bin/
+obj/
+dist/
+build/
+
+# -- Terraform state (sensitive) -------------------------------------------
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+
+# -- Test output ------------------------------------------------------------
+coverage/
+test-results/
+*.test
+*.spec
+
+# -- Docker-in-Docker (avoid recursion) -------------------------------------
+infra/docker/Dockerfile.*
+infra/docker/.dockerignore
+infra/docker/docker-compose.yml
+
+# -- Example applications (not needed in KC image) -------------------------
+examples/
+
+# -- Backup files -----------------------------------------------------------
+*.bak
+*.backup
+*.dump
