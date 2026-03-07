@@ -1,0 +1,59 @@
+<header class="app-header">
+  {{!-- Left: Logo + Title --}}
+  <a href="/?lang={{lang}}" class="app-header-left" style="text-decoration: none;">
+    <img
+      src="/branding/dark-color-logo-with-claim.svg"
+      alt="Ximplicity"
+      class="app-header-logo"
+      id="header-logo"
+    />
+    <span class="app-header-title">{{t.app.title}}</span>
+  </a>
+
+  {{!-- Right: Controls --}}
+  <div class="app-header-right">
+    {{!-- Navigation --}}
+    {{#if isAuthenticated}}
+    <nav>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="/dashboard?lang={{lang}}" {{#if (eq activePage "dashboard")}}class="active"{{/if}}>
+            {{t.nav.dashboard}}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/profile?lang={{lang}}" {{#if (eq activePage "profile")}}class="active"{{/if}}>
+            {{t.nav.profile}}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/admin?lang={{lang}}" {{#if (eq activePage "admin")}}class="active"{{/if}}>
+            {{t.nav.admin}}
+          </a>
+        </li>
+      </ul>
+    </nav>
+    {{/if}}
+
+    {{!-- Theme toggle --}}
+    <button class="theme-toggle" onclick="toggleTheme()" title="{{t.header.toggleTheme}}" id="theme-toggle-btn">
+      <span id="theme-icon">&#9790;</span>
+    </button>
+
+    {{!-- Language selector --}}
+    <div class="language-selector">
+      <select onchange="changeLanguage(this.value)" title="{{t.header.selectLanguage}}">
+        <option value="en" {{#if (eq lang "en")}}selected{{/if}}>EN</option>
+        <option value="es" {{#if (eq lang "es")}}selected{{/if}}>ES</option>
+      </select>
+    </div>
+
+    {{!-- Auth controls --}}
+    {{#if isAuthenticated}}
+      <span class="header-user-name">{{user.displayName}}</span>
+      <a href="/auth/logout" class="btn btn-sm">{{t.header.logout}}</a>
+    {{else}}
+      <a href="/auth/login" class="btn btn-sm btn-primary">{{t.header.login}}</a>
+    {{/if}}
+  </div>
+</header>
