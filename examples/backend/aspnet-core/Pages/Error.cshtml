@@ -1,0 +1,23 @@
+@page
+@model IAMExample.Pages.ErrorModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["ErrorTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["ErrorTitle"]</h1>
+    <p class="page-description">@Localizer["ErrorMessage"]</p>
+
+    @if (Model.ShowRequestId)
+    {
+        <div class="card">
+            <p class="info-label">Request ID</p>
+            <code class="info-value">@Model.RequestId</code>
+        </div>
+    }
+
+    <div style="margin-top: var(--spacing-lg);">
+        <a href="/" class="btn btn-outline">@Localizer["CommonBack"]</a>
+    </div>
+</div>

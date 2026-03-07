@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- App -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>IAM ASP.NET Core Example</value>
+  </data>
+
+  <!-- Navigation -->
+  <data name="NavHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="NavDashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="NavAdmin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="NavProfile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+
+  <!-- Header -->
+  <data name="HeaderLogin" xml:space="preserve">
+    <value>Sign In</value>
+  </data>
+  <data name="HeaderLogout" xml:space="preserve">
+    <value>Sign Out</value>
+  </data>
+  <data name="ToggleTheme" xml:space="preserve">
+    <value>Toggle theme</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Select language</value>
+  </data>
+
+  <!-- Footer -->
+  <data name="FooterLicense" xml:space="preserve">
+    <value>Licensed under MIT.</value>
+  </data>
+
+  <!-- Home -->
+  <data name="HomeTitle" xml:space="preserve">
+    <value>Identity &amp; Access Management Demo</value>
+  </data>
+  <data name="HomeSubtitle" xml:space="preserve">
+    <value>Secure authentication with Keycloak</value>
+  </data>
+  <data name="HomeDescription" xml:space="preserve">
+    <value>This application demonstrates OpenID Connect authentication with Keycloak using ASP.NET Core and Microsoft.AspNetCore.Authentication.OpenIdConnect.</value>
+  </data>
+  <data name="HomeGreeting" xml:space="preserve">
+    <value>Welcome back, {0}!</value>
+  </data>
+  <data name="GoToDashboard" xml:space="preserve">
+    <value>Go to Dashboard</value>
+  </data>
+  <data name="HomeCtaText" xml:space="preserve">
+    <value>Sign in with Keycloak to explore the protected areas of this demo.</value>
+  </data>
+  <data name="HomeSignIn" xml:space="preserve">
+    <value>Sign In</value>
+  </data>
+
+  <!-- Dashboard -->
+  <data name="DashboardTitle" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="DashboardWelcome" xml:space="preserve">
+    <value>Welcome, {0}</value>
+  </data>
+  <data name="DashboardUserInfo" xml:space="preserve">
+    <value>User Information</value>
+  </data>
+  <data name="DashboardName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="DashboardEmail" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="DashboardNotProvided" xml:space="preserve">
+    <value>Not provided</value>
+  </data>
+  <data name="DashboardRoles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="DashboardNoRoles" xml:space="preserve">
+    <value>No roles assigned</value>
+  </data>
+  <data name="DashboardTokenInfo" xml:space="preserve">
+    <value>Token Information</value>
+  </data>
+  <data name="DashboardAccessToken" xml:space="preserve">
+    <value>Access Token (preview)</value>
+  </data>
+
+  <!-- Admin -->
+  <data name="AdminTitle" xml:space="preserve">
+    <value>Administration</value>
+  </data>
+  <data name="AdminWelcome" xml:space="preserve">
+    <value>Welcome, {0}. You have administrative access.</value>
+  </data>
+  <data name="AdminPanelTitle" xml:space="preserve">
+    <value>Admin Panel</value>
+  </data>
+  <data name="AdminPanelDescription" xml:space="preserve">
+    <value>This section is only visible to users with the admin role. Below are the available administrative actions.</value>
+  </data>
+  <data name="AdminActionUsers" xml:space="preserve">
+    <value>Manage users</value>
+  </data>
+  <data name="AdminActionRoles" xml:space="preserve">
+    <value>Manage roles</value>
+  </data>
+  <data name="AdminActionSettings" xml:space="preserve">
+    <value>System settings</value>
+  </data>
+
+  <!-- Profile -->
+  <data name="ProfileTitle" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="ProfileDescription" xml:space="preserve">
+    <value>Full set of claims from your OIDC identity token.</value>
+  </data>
+  <data name="ProfileClaimsTitle" xml:space="preserve">
+    <value>Token Claims</value>
+  </data>
+
+  <!-- Unauthorized -->
+  <data name="UnauthorizedTitle" xml:space="preserve">
+    <value>Access Denied</value>
+  </data>
+  <data name="UnauthorizedMessage" xml:space="preserve">
+    <value>You do not have permission to view this page. Please contact your administrator if you believe this is an error.</value>
+  </data>
+  <data name="UnauthorizedBackHome" xml:space="preserve">
+    <value>Back to Home</value>
+  </data>
+
+  <!-- Error -->
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+
+  <!-- Common -->
+  <data name="CommonBack" xml:space="preserve">
+    <value>Go back</value>
+  </data>
+</root>

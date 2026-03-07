@@ -1,0 +1,24 @@
+@page
+@model IAMExample.Pages.ProfileModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["ProfileTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["ProfileTitle"]</h1>
+    <p class="page-description">@Localizer["ProfileDescription"]</p>
+
+    <div class="card">
+        <h2 class="card-title">@Localizer["ProfileClaimsTitle"]</h2>
+        <div class="info-list-vertical">
+            @foreach (var claim in Model.Claims)
+            {
+                <div class="info-list-item">
+                    <div class="info-label">@claim.Type</div>
+                    <div class="info-value">@claim.Value</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

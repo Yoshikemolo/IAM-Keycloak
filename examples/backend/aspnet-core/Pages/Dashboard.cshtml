@@ -1,0 +1,50 @@
+@page
+@model IAMExample.Pages.DashboardModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["DashboardTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["DashboardTitle"]</h1>
+    <p class="page-description">@Localizer["DashboardWelcome", Model.DisplayName]</p>
+
+    <!-- User Information Card -->
+    <div class="card" style="margin-bottom: var(--spacing-lg);">
+        <h2 class="card-title">@Localizer["DashboardUserInfo"]</h2>
+        <dl class="info-list">
+            <dt>@Localizer["DashboardName"]</dt>
+            <dd>@(Model.FullName ?? Localizer["DashboardNotProvided"].Value)</dd>
+
+            <dt>@Localizer["DashboardEmail"]</dt>
+            <dd>@(Model.Email ?? Localizer["DashboardNotProvided"].Value)</dd>
+
+            <dt>@Localizer["DashboardRoles"]</dt>
+            <dd>
+                @if (Model.Roles.Count > 0)
+                {
+                    <div class="badge-group">
+                        @foreach (var role in Model.Roles)
+                        {
+                            <span class="badge @(role == "admin" ? "badge-admin" : "badge-user")">@role</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span class="text-muted">@Localizer["DashboardNoRoles"]</span>
+                }
+            </dd>
+        </dl>
+    </div>
+
+    <!-- Token Information Card -->
+    <div class="card">
+        <h2 class="card-title">@Localizer["DashboardTokenInfo"]</h2>
+        @if (!string.IsNullOrEmpty(Model.AccessTokenPreview))
+        {
+            <p class="section-heading">@Localizer["DashboardAccessToken"]</p>
+            <code class="token-preview">@Model.AccessTokenPreview</code>
+        }
+    </div>
+</div>
