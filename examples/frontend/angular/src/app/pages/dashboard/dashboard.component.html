@@ -1,0 +1,55 @@
+<!-- Dashboard page (protected) -->
+<div class="page">
+  @if (userData$ | async; as userResult) {
+    <h1 class="page-title">
+      {{ 'dashboard.welcome' | translate:{ name: getUserName(userResult.userData) } }}
+    </h1>
+
+    <!-- User Information Card -->
+    <div class="card" style="margin-bottom: var(--spacing-lg)">
+      <h2 class="card-title">{{ 'dashboard.userInfo' | translate }}</h2>
+      <dl class="info-list">
+        <dt>{{ 'dashboard.name' | translate }}</dt>
+        <dd>{{ getUserName(userResult.userData) || ('dashboard.notProvided' | translate) }}</dd>
+
+        <dt>{{ 'dashboard.email' | translate }}</dt>
+        <dd>{{ getEmail(userResult.userData) || ('dashboard.notProvided' | translate) }}</dd>
+      </dl>
+    </div>
+
+    <!-- Roles Card -->
+    <div class="card" style="margin-bottom: var(--spacing-lg)">
+      <h2 class="card-title">{{ 'dashboard.roles' | translate }}</h2>
+      @if (getRoles(userResult.userData).length > 0) {
+        <div class="badge-group">
+          @for (role of getRoles(userResult.userData); track role) {
+            <span [class]="getRoleBadgeClass(role)">{{ role }}</span>
+          }
+        </div>
+      } @else {
+        <p class="text-muted">{{ 'dashboard.noRoles' | translate }}</p>
+      }
+    </div>
+
+    <!-- Token Info Card -->
+    <div class="card" style="margin-bottom: var(--spacing-lg)">
+      <h2 class="card-title">{{ 'dashboard.tokenInfo' | translate }}</h2>
+      <dl class="info-list">
+        <dt>{{ 'dashboard.tokenExpiry' | translate }}</dt>
+        <dd>
+          @if (tokenExpiry() === 'expired') {
+            <span class="text-muted">{{ 'dashboard.expired' | translate }}</span>
+          } @else {
+            <span class="token-countdown">{{ tokenExpiry() }}</span>
+          }
+        </dd>
+      </dl>
+    </div>
+
+    <!-- Access Token Preview Card -->
+    <div class="card">
+      <h2 class="card-title">{{ 'dashboard.accessToken' | translate }}</h2>
+      <code class="token-preview">{{ getTokenPreview(accessToken()) }}</code>
+    </div>
+  }
+</div>

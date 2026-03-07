@@ -1,0 +1,20 @@
+<!-- Admin page (requires admin role) -->
+<div class="page">
+  <h1 class="page-title">{{ 'admin.title' | translate }}</h1>
+
+  @if (userData$ | async; as userResult) {
+    <p class="page-description">
+      {{ 'admin.welcome' | translate:{ name: getUserName(userResult.userData) } }}
+    </p>
+  }
+
+  <div class="card">
+    <h2 class="card-title">{{ 'admin.panelTitle' | translate }}</h2>
+    <p class="page-description">{{ 'admin.panelDescription' | translate }}</p>
+    <ul class="admin-actions">
+      <li>{{ 'admin.actionUsers' | translate }}</li>
+      <li>{{ 'admin.actionRoles' | translate }}</li>
+      <li>{{ 'admin.actionSettings' | translate }}</li>
+    </ul>
+  </div>
+</div>
