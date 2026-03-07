@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="#{app.title}">IAM Spring Boot Example</title>
+  <link rel="stylesheet" th:href="@{/css/variables.css}" />
+  <link rel="stylesheet" th:href="@{/css/global.css}" />
+  <link rel="stylesheet" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/components.css}" />
+  <script th:src="@{/js/theme.js}"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="app-main">
+      <div class="page">
+        <h1 class="page-title" th:text="#{home.title}">Identity &amp; Access Management Demo</h1>
+        <p class="page-subtitle" th:text="#{home.subtitle}">Secure authentication with Keycloak</p>
+        <p class="page-description" th:text="#{home.description}">
+          This application demonstrates OpenID Connect authentication with Keycloak.
+        </p>
+
+        <!-- Authenticated view -->
+        <div sec:authorize="isAuthenticated()" class="home-authenticated">
+          <p class="home-greeting" th:text="#{home.greeting(${userName})}">Welcome back!</p>
+          <a th:href="@{/dashboard}" class="btn btn-primary" th:text="#{home.goToDashboard}">Go to Dashboard</a>
+        </div>
+
+        <!-- Anonymous view -->
+        <div sec:authorize="isAnonymous()" class="home-unauthenticated">
+          <p class="home-cta-text" th:text="#{home.ctaText}">Sign in to explore the demo.</p>
+          <a th:href="@{/oauth2/authorization/keycloak}" class="btn btn-primary" th:text="#{home.signIn}">Sign In</a>
+        </div>
+      </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </div>
+</body>
+</html>

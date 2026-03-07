@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+  <!-- Header fragment -->
+  <header class="app-header" th:fragment="header">
+    <!-- Left: Logo + Title -->
+    <a th:href="@{/}" class="app-header-left" style="text-decoration: none;">
+      <!-- Dark theme logo -->
+      <img id="logo-dark"
+           th:src="@{/images/dark-color-logo-with-claim.svg}"
+           alt="Ximplicity"
+           class="app-header-logo" />
+      <!-- Light theme logo (hidden by default, toggled via JS) -->
+      <img id="logo-light"
+           th:src="@{/images/light-color-logo-with-claim.svg}"
+           alt="Ximplicity"
+           class="app-header-logo"
+           style="display: none;" />
+      <span class="app-header-title" th:text="#{app.title}">IAM Spring Boot Example</span>
+    </a>
+
+    <!-- Right: Controls -->
+    <div class="app-header-right">
+      <!-- Theme toggle -->
+      <button id="theme-toggle"
+              class="theme-toggle"
+              type="button"
+              th:title="#{header.toggleTheme}"
+              aria-label="Toggle theme">&#9790;</button>
+
+      <!-- Language selector -->
+      <div class="language-selector">
+        <select onchange="window.location.href=this.value"
+                th:title="#{header.selectLanguage}">
+          <option th:value="${'?lang=en'}"
+                  th:selected="${#locale.language == 'en'}">EN</option>
+          <option th:value="${'?lang=es'}"
+                  th:selected="${#locale.language == 'es'}">ES</option>
+        </select>
+      </div>
+
+      <!-- Authenticated: show user name + logout -->
+      <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 8px;">
+        <span class="header-user-name" sec:authentication="name">User</span>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+          <button type="submit" class="btn btn-sm" th:text="#{header.logout}">Sign Out</button>
+        </form>
+      </div>
+
+      <!-- Anonymous: show sign in button -->
+      <div sec:authorize="isAnonymous()">
+        <a th:href="@{/oauth2/authorization/keycloak}" class="btn btn-sm btn-primary" th:text="#{header.login}">Sign In</a>
+      </div>
+    </div>
+  </header>
+</body>
+</html>

@@ -1,0 +1,45 @@
+# ---------------------------------------------------------------------------
+# Docker Compose configuration for the IAM Spring Boot Example.
+#
+# Services:
+#   keycloak - Keycloak identity provider running in development mode with
+#              realm auto-import enabled.
+#   app      - The Spring Boot backend application, depending on a healthy
+#              Keycloak instance before starting.
+#
+# Usage:
+#   docker compose up --build
+# ---------------------------------------------------------------------------
+
+services:
+  # ---------- Keycloak Identity Provider ----------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.0
+    container_name: iam-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  # ---------- Spring Boot Application ----------
+  app:
+    build: .
+    container_name: iam-spring-boot-app
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/tenant
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: spring-boot-app
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: change-me
+      KEYCLOAK_URL: http://keycloak:8080
+    depends_on:
+      keycloak:
+        condition: service_healthy
