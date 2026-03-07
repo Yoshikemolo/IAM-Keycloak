@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> - <%= t('app.title') %></title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/header') %>
+
+    <main class="app-main">
+      <div class="page">
+        <h1 class="page-title"><%= t('profile.title') %></h1>
+        <p class="page-description"><%= t('profile.description') %></p>
+
+        <div class="card">
+          <h2 class="card-title"><%= t('profile.claimsTitle') %></h2>
+          <div class="info-list-vertical">
+            <% Object.entries(claims).forEach(function([key, value]) { %>
+              <div class="info-list-item">
+                <div class="info-label"><%= key %></div>
+                <% if (typeof value === 'object' && value !== null) { %>
+                  <pre class="claim-json"><%= JSON.stringify(value, null, 2) %></pre>
+                <% } else { %>
+                  <div class="info-value"><%= String(value) %></div>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </div>
+</body>
+</html>
