@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="#{dashboard.title} + ' - ' + #{app.title}">Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/variables.css}" />
+  <link rel="stylesheet" th:href="@{/css/global.css}" />
+  <link rel="stylesheet" th:href="@{/css/layout.css}" />
+  <link rel="stylesheet" th:href="@{/css/components.css}" />
+  <script th:src="@{/js/theme.js}"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="app-main">
+      <div class="page">
+        <h1 class="page-title" th:text="#{dashboard.title}">Dashboard</h1>
+        <p class="page-description" th:text="#{dashboard.welcome(${userName})}">Welcome</p>
+
+        <!-- User Information Card -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <h2 class="card-title" th:text="#{dashboard.userInfo}">User Information</h2>
+          <dl class="info-list">
+            <dt th:text="#{dashboard.name}">Name</dt>
+            <dd th:text="${userName}">-</dd>
+
+            <dt th:text="#{dashboard.email}">Email</dt>
+            <dd th:text="${userEmail != null ? userEmail : #messages.msg('dashboard.notProvided')}">-</dd>
+
+            <dt th:text="#{dashboard.roles}">Roles</dt>
+            <dd>
+              <div class="badge-group" th:if="${!roles.isEmpty()}">
+                <span th:each="role : ${roles}"
+                      class="badge"
+                      th:classappend="${role == 'admin'} ? 'badge-admin' : 'badge-user'"
+                      th:text="${role}">role</span>
+              </div>
+              <span th:if="${roles.isEmpty()}"
+                    class="text-muted"
+                    th:text="#{dashboard.noRoles}">No roles assigned</span>
+            </dd>
+          </dl>
+        </div>
+
+        <!-- Navigation links -->
+        <div style="display: flex; gap: var(--spacing-sm);">
+          <a th:href="@{/profile}" class="btn btn-outline" th:text="#{nav.profile}">Profile</a>
+          <a th:if="${isAdmin}" th:href="@{/admin}" class="btn btn-outline" th:text="#{nav.admin}">Admin</a>
+        </div>
+      </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </div>
+</body>
+</html>

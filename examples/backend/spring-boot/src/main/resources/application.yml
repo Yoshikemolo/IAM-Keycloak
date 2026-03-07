@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# Application configuration for the IAM Spring Boot Example.
+#
+# Spring Security is configured to use Keycloak as the OpenID Connect
+# provider via the OAuth2 Client registration below.
+# ---------------------------------------------------------------------------
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: iam-spring-boot-example
+
+  # ---------- Thymeleaf ----------
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+
+  # ---------- i18n ----------
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  # ---------- OAuth2 Client (Keycloak OIDC) ----------
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${KEYCLOAK_CLIENT_ID:spring-boot-app}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET:change-me}
+            scope: openid,profile,email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          keycloak:
+            issuer-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:tenant}
+            user-name-attribute: preferred_username
