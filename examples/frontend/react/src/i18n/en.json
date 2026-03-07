@@ -1,0 +1,93 @@
+{
+  "app": {
+    "title": "IAM React Example",
+    "description": "Identity and Access Management example powered by Keycloak"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "header": {
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "toggleTheme": "Toggle theme",
+    "selectLanguage": "Select language"
+  },
+  "footer": {
+    "copyright": "Ximplicity",
+    "license": "Licensed under MIT.",
+    "builtWith": "Built with React and Keycloak"
+  },
+  "home": {
+    "title": "Identity & Access Management Demo",
+    "welcome": "Welcome to the IAM Demo",
+    "subtitle": "Secure authentication with Keycloak",
+    "description": "This application demonstrates OpenID Connect authentication with Keycloak using React 19 and react-oidc-context.",
+    "greeting": "Welcome back, {{name}}!",
+    "goToDashboard": "Go to Dashboard",
+    "ctaText": "Sign in with Keycloak to explore the protected areas of this demo.",
+    "signIn": "Sign In",
+    "loginPrompt": "Please log in to access the full application."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}",
+    "userInfo": "User Information",
+    "name": "Name",
+    "email": "Email",
+    "notProvided": "Not provided",
+    "roles": "Roles",
+    "realmRole": "Realm role",
+    "noRoles": "No roles assigned",
+    "tokenExpiry": "Token Expiry",
+    "expiresIn": "Expires in {{time}}",
+    "expired": "Token has expired",
+    "accessToken": "Access Token (preview)",
+    "tokenInfo": "Token Information"
+  },
+  "admin": {
+    "title": "Administration",
+    "welcome": "Welcome, {{name}}. You have administrative access.",
+    "panelTitle": "Admin Panel",
+    "panelDescription": "This section is only visible to users with the admin role. Below are the available administrative actions.",
+    "actionUsers": "Manage users",
+    "actionRoles": "Manage roles",
+    "actionSettings": "System settings",
+    "description": "This section is restricted to users with the admin role.",
+    "onlyAdmins": "Only administrators can view and manage this page."
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Full set of claims from your OIDC identity token.",
+    "claimsTitle": "Token Claims",
+    "email": "Email",
+    "name": "Full Name",
+    "roles": "Assigned Roles",
+    "tokenExpiry": "Token Expires"
+  },
+  "unauthorized": {
+    "title": "Access Denied",
+    "message": "You do not have permission to view this page. Please contact your administrator if you believe this is an error.",
+    "backHome": "Back to Home"
+  },
+  "auth": {
+    "loginButton": "Log in with Keycloak",
+    "logoutButton": "Log out",
+    "unauthorized": "Unauthorized",
+    "unauthorizedDesc": "You do not have permission to access this page. Please contact an administrator if you believe this is an error."
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "toggle": "Toggle theme"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "back": "Go back"
+  }
+}

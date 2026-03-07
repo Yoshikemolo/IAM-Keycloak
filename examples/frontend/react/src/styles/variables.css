@@ -1,0 +1,125 @@
+/* ==========================================================================
+ * variables.css
+ * CSS custom properties for the IAM-Keycloak React example.
+ * Uses the same Catppuccin-inspired palette as the md-viewer project.
+ * Dark theme is the default; light theme activates via attribute or media query.
+ * ========================================================================== */
+
+/* ===== Dark Theme (default) ===== */
+
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-base: #1e1e2e;
+  --bg-surface: #181825;
+  --bg-overlay: #313244;
+  --bg-deep: #11111b;
+
+  /* Text */
+  --text-primary: #cdd6f4;
+  --text-secondary: #a6adc8;
+  --text-muted: #6c7086;
+  --text-heading: #89b4fa;
+
+  /* Accent colors */
+  --accent-primary: #89b4fa;
+  --accent-hover: #74c7ec;
+  --accent-green: #a6e3a1;
+  --accent-red: #f38ba8;
+
+  /* Borders */
+  --border: #313244;
+  --border-subtle: #45475a;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #45475a;
+  --scrollbar-hover: #585b70;
+}
+
+/* ===== Light Theme ===== */
+
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg-base: #eff1f5;
+  --bg-surface: #e6e9ef;
+  --bg-overlay: #ccd0da;
+  --bg-deep: #dce0e8;
+
+  /* Text */
+  --text-primary: #4c4f69;
+  --text-secondary: #5c5f77;
+  --text-muted: #8c8fa1;
+  --text-heading: #1e66f5;
+
+  /* Accent colors */
+  --accent-primary: #1e66f5;
+  --accent-hover: #2a6ef5;
+  --accent-green: #40a02b;
+  --accent-red: #d20f39;
+
+  /* Borders */
+  --border: #ccd0da;
+  --border-subtle: #bcc0cc;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #bcc0cc;
+  --scrollbar-hover: #9ca0b0;
+}
+
+/* Auto-detect system preference when no explicit theme attribute is set */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-base: #eff1f5;
+    --bg-surface: #e6e9ef;
+    --bg-overlay: #ccd0da;
+    --bg-deep: #dce0e8;
+    --text-primary: #4c4f69;
+    --text-secondary: #5c5f77;
+    --text-muted: #8c8fa1;
+    --text-heading: #1e66f5;
+    --accent-primary: #1e66f5;
+    --accent-hover: #2a6ef5;
+    --accent-green: #40a02b;
+    --accent-red: #d20f39;
+    --border: #ccd0da;
+    --border-subtle: #bcc0cc;
+    --scrollbar-thumb: #bcc0cc;
+    --scrollbar-hover: #9ca0b0;
+  }
+}
+
+/* ===== Typography ===== */
+
+:root {
+  --font-primary: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ===== Spacing ===== */
+
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+}
+
+/* ===== Border Radius ===== */
+
+:root {
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+}
+
+/* ===== Transitions ===== */
+
+:root {
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
