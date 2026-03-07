@@ -1,0 +1,12 @@
+@page
+@model IAMExample.Pages.UnauthorizedModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["UnauthorizedTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["UnauthorizedTitle"]</h1>
+    <p class="page-description">@Localizer["UnauthorizedMessage"]</p>
+    <a href="/" class="btn btn-outline">@Localizer["UnauthorizedBackHome"]</a>
+</div>

@@ -1,0 +1,27 @@
+@page
+@model IAMExample.Pages.IndexModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["HomeTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["HomeTitle"]</h1>
+    <p class="page-subtitle">@Localizer["HomeSubtitle"]</p>
+    <p class="page-description">@Localizer["HomeDescription"]</p>
+
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        <div class="home-authenticated">
+            <p class="home-greeting">@Localizer["HomeGreeting", Model.DisplayName]</p>
+            <a href="/Dashboard" class="btn btn-primary">@Localizer["GoToDashboard"]</a>
+        </div>
+    }
+    else
+    {
+        <div class="home-unauthenticated">
+            <p class="home-cta-text">@Localizer["HomeCtaText"]</p>
+            <a href="/auth/login" class="btn btn-primary">@Localizer["HomeSignIn"]</a>
+        </div>
+    }
+</div>

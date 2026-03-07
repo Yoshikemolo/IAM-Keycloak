@@ -1,0 +1,31 @@
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    var theme = Context.Request.Cookies["theme"] ?? "dark";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "en";
+}
+<!DOCTYPE html>
+<html lang="@currentCulture" data-theme="@theme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? Localizer["AppTitle"]) - IAM Example</title>
+    <link rel="stylesheet" href="~/css/variables.css" />
+    <link rel="stylesheet" href="~/css/global.css" />
+    <link rel="stylesheet" href="~/css/layout.css" />
+    <link rel="stylesheet" href="~/css/components.css" />
+</head>
+<body>
+    <div class="app-layout">
+        <partial name="_Header" />
+
+        <main class="app-main">
+            @RenderBody()
+        </main>
+
+        <partial name="_Footer" />
+    </div>
+
+    <script src="~/js/theme.js"></script>
+</body>
+</html>

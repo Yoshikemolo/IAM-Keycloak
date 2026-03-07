@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- App -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>Ejemplo IAM ASP.NET Core</value>
+  </data>
+
+  <!-- Navigation -->
+  <data name="NavHome" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="NavDashboard" xml:space="preserve">
+    <value>Panel</value>
+  </data>
+  <data name="NavAdmin" xml:space="preserve">
+    <value>Admin</value>
+  </data>
+  <data name="NavProfile" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+
+  <!-- Header -->
+  <data name="HeaderLogin" xml:space="preserve">
+    <value>Iniciar Sesion</value>
+  </data>
+  <data name="HeaderLogout" xml:space="preserve">
+    <value>Cerrar Sesion</value>
+  </data>
+  <data name="ToggleTheme" xml:space="preserve">
+    <value>Cambiar tema</value>
+  </data>
+  <data name="SelectLanguage" xml:space="preserve">
+    <value>Seleccionar idioma</value>
+  </data>
+
+  <!-- Footer -->
+  <data name="FooterLicense" xml:space="preserve">
+    <value>Licencia MIT.</value>
+  </data>
+
+  <!-- Home -->
+  <data name="HomeTitle" xml:space="preserve">
+    <value>Demo de Gestion de Identidad y Acceso</value>
+  </data>
+  <data name="HomeSubtitle" xml:space="preserve">
+    <value>Autenticacion segura con Keycloak</value>
+  </data>
+  <data name="HomeDescription" xml:space="preserve">
+    <value>Esta aplicacion demuestra la autenticacion OpenID Connect con Keycloak usando ASP.NET Core y Microsoft.AspNetCore.Authentication.OpenIdConnect.</value>
+  </data>
+  <data name="HomeGreeting" xml:space="preserve">
+    <value>Bienvenido de nuevo, {0}!</value>
+  </data>
+  <data name="GoToDashboard" xml:space="preserve">
+    <value>Ir al Panel</value>
+  </data>
+  <data name="HomeCtaText" xml:space="preserve">
+    <value>Inicia sesion con Keycloak para explorar las areas protegidas de esta demo.</value>
+  </data>
+  <data name="HomeSignIn" xml:space="preserve">
+    <value>Iniciar Sesion</value>
+  </data>
+
+  <!-- Dashboard -->
+  <data name="DashboardTitle" xml:space="preserve">
+    <value>Panel de Control</value>
+  </data>
+  <data name="DashboardWelcome" xml:space="preserve">
+    <value>Bienvenido, {0}</value>
+  </data>
+  <data name="DashboardUserInfo" xml:space="preserve">
+    <value>Informacion del Usuario</value>
+  </data>
+  <data name="DashboardName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="DashboardEmail" xml:space="preserve">
+    <value>Correo electronico</value>
+  </data>
+  <data name="DashboardNotProvided" xml:space="preserve">
+    <value>No proporcionado</value>
+  </data>
+  <data name="DashboardRoles" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="DashboardNoRoles" xml:space="preserve">
+    <value>Sin roles asignados</value>
+  </data>
+  <data name="DashboardTokenInfo" xml:space="preserve">
+    <value>Informacion del token</value>
+  </data>
+  <data name="DashboardAccessToken" xml:space="preserve">
+    <value>Token de Acceso (vista previa)</value>
+  </data>
+
+  <!-- Admin -->
+  <data name="AdminTitle" xml:space="preserve">
+    <value>Administracion</value>
+  </data>
+  <data name="AdminWelcome" xml:space="preserve">
+    <value>Bienvenido, {0}. Tienes acceso administrativo.</value>
+  </data>
+  <data name="AdminPanelTitle" xml:space="preserve">
+    <value>Panel de Administracion</value>
+  </data>
+  <data name="AdminPanelDescription" xml:space="preserve">
+    <value>Esta seccion solo es visible para usuarios con el rol de administrador. A continuacion se muestran las acciones administrativas disponibles.</value>
+  </data>
+  <data name="AdminActionUsers" xml:space="preserve">
+    <value>Gestionar usuarios</value>
+  </data>
+  <data name="AdminActionRoles" xml:space="preserve">
+    <value>Gestionar roles</value>
+  </data>
+  <data name="AdminActionSettings" xml:space="preserve">
+    <value>Configuracion del sistema</value>
+  </data>
+
+  <!-- Profile -->
+  <data name="ProfileTitle" xml:space="preserve">
+    <value>Perfil</value>
+  </data>
+  <data name="ProfileDescription" xml:space="preserve">
+    <value>Conjunto completo de claims de tu token de identidad OIDC.</value>
+  </data>
+  <data name="ProfileClaimsTitle" xml:space="preserve">
+    <value>Claims del Token</value>
+  </data>
+
+  <!-- Unauthorized -->
+  <data name="UnauthorizedTitle" xml:space="preserve">
+    <value>Acceso Denegado</value>
+  </data>
+  <data name="UnauthorizedMessage" xml:space="preserve">
+    <value>No tienes permiso para ver esta pagina. Contacta con tu administrador si crees que es un error.</value>
+  </data>
+  <data name="UnauthorizedBackHome" xml:space="preserve">
+    <value>Volver al Inicio</value>
+  </data>
+
+  <!-- Error -->
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Algo salio mal. Por favor, intentalo de nuevo.</value>
+  </data>
+
+  <!-- Common -->
+  <data name="CommonBack" xml:space="preserve">
+    <value>Volver</value>
+  </data>
+</root>

@@ -1,0 +1,79 @@
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@inject UserService UserService
+@{
+    var theme = Context.Request.Cookies["theme"] ?? "dark";
+    var requestCulture = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = requestCulture?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "en";
+    var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+    var userName = isAuthenticated ? UserService.GetDisplayName(User) : string.Empty;
+}
+
+<header class="app-header">
+    <!-- Left: Logo + Title -->
+    <a href="/" class="app-header-left" style="text-decoration: none;">
+        @if (theme == "light")
+        {
+            <img src="/branding/light-color-logo-with-claim.svg" alt="Ximplicity" class="app-header-logo" />
+        }
+        else
+        {
+            <img src="/branding/dark-color-logo-with-claim.svg" alt="Ximplicity" class="app-header-logo" />
+        }
+        <span class="app-header-title">@Localizer["AppTitle"]</span>
+    </a>
+
+    <!-- Right: Controls -->
+    <div class="app-header-right">
+        <!-- Theme Toggle -->
+        <button class="theme-toggle"
+                onclick="toggleTheme()"
+                title="@Localizer["ToggleTheme"]"
+                type="button">
+            <span id="theme-icon">@(theme == "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19")</span>
+        </button>
+
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <select onchange="window.location.href='/set-language?culture=' + this.value"
+                    title="@Localizer["SelectLanguage"]">
+                <option value="en" @(currentCulture == "en" ? "selected" : "")>EN</option>
+                <option value="es" @(currentCulture == "es" ? "selected" : "")>ES</option>
+            </select>
+        </div>
+
+        <!-- Nav Links -->
+        <nav>
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="/">@Localizer["NavHome"]</a>
+                </li>
+                @if (isAuthenticated)
+                {
+                    <li class="nav-item">
+                        <a href="/Dashboard">@Localizer["NavDashboard"]</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/Profile">@Localizer["NavProfile"]</a>
+                    </li>
+                    @if (UserService.IsAdmin(User))
+                    {
+                        <li class="nav-item">
+                            <a href="/Admin">@Localizer["NavAdmin"]</a>
+                        </li>
+                    }
+                }
+            </ul>
+        </nav>
+
+        <!-- Auth Controls -->
+        @if (isAuthenticated)
+        {
+            <span class="header-user-name">@userName</span>
+            <a href="/auth/logout" class="btn btn-sm">@Localizer["HeaderLogout"]</a>
+        }
+        else
+        {
+            <a href="/auth/login" class="btn btn-sm btn-primary">@Localizer["HeaderLogin"]</a>
+        }
+    </div>
+</header>

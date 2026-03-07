@@ -1,0 +1,22 @@
+@page
+@model IAMExample.Pages.AdminModel
+@inject IStringLocalizer<IAMExample.Resources.SharedResource> Localizer
+@{
+    ViewData["Title"] = Localizer["AdminTitle"];
+}
+
+<div class="page">
+    <h1 class="page-title">@Localizer["AdminTitle"]</h1>
+    <p class="page-description">@Localizer["AdminWelcome", Model.DisplayName]</p>
+
+    <div class="card">
+        <h2 class="card-title">@Localizer["AdminPanelTitle"]</h2>
+        <p class="page-description">@Localizer["AdminPanelDescription"]</p>
+
+        <ul class="admin-actions">
+            <li>@Localizer["AdminActionUsers"]</li>
+            <li>@Localizer["AdminActionRoles"]</li>
+            <li>@Localizer["AdminActionSettings"]</li>
+        </ul>
+    </div>
+</div>
