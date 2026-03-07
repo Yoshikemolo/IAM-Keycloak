@@ -110,13 +110,15 @@
 
 | Document | Relevance |
 |----------|-----------|
-| `doc/00-overview.md` | Project overview, technology stack, document index |
-| `doc/01-target-architecture.md` | Current draft of target architecture (needs client-specific updates) |
-| `doc/03-multi-tenancy-design.md` | Multi-tenancy deep dive (to be created) |
-| `doc/05-infrastructure-as-code.md` | IaC strategy draft (needs GKE/Oracle adaptation) |
-| `doc/08-security-hardening.md` | Security controls (to be created) |
+| [doc/00-overview.md](../doc/00-overview.md) | Project overview, technology stack, document index |
+| [doc/01-target-architecture.md](../doc/01-target-architecture.md) | Current draft of target architecture (needs client-specific updates) |
+| [doc/04-keycloak-configuration.md](../doc/04-keycloak-configuration.md) | Keycloak configuration |
+| [doc/05-infrastructure-as-code.md](../doc/05-infrastructure-as-code.md) | IaC strategy draft (needs GKE/Oracle adaptation) |
+| [doc/07-security-by-design.md](../doc/07-security-by-design.md) | Security controls and hardening |
+| [doc/15-multi-tenancy-design.md](../doc/15-multi-tenancy-design.md) | Realm-per-tenant strategy, isolation, tenant lifecycle |
+| [doc/17-disaster-recovery.md](../doc/17-disaster-recovery.md) | HA/DR strategy, backup, failover |
 
-**Important:** The existing `doc/01-target-architecture.md` uses PostgreSQL and generic cloud examples. It must be adapted to the client's specific stack: GKE, Oracle DB, Apigee, and the existing microservices (JIT, token exchange).
+**Important:** The existing [doc/01-target-architecture.md](../doc/01-target-architecture.md) uses PostgreSQL and generic cloud examples. It must be adapted to the client's specific stack: GKE, Oracle DB, Apigee, and the existing microservices (JIT, token exchange).
 
 ---
 

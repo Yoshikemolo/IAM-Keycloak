@@ -32,23 +32,29 @@
 
 | Document | File | Phase | Status | Last Modified | Notes |
 |----------|------|-------|--------|--------------|-------|
-| 00 - Overview | `doc/00-overview.md` | -- | Drafted | 2026-03-07 | Needs client-specific updates |
-| 01 - Target Architecture | `doc/01-target-architecture.md` | Phase 1 | Drafted | 2026-03-07 | Generic; needs GKE/Oracle/Apigee adaptation |
-| 02 - Analysis and Design | `doc/02-analysis-and-design.md` | Phase 2 | Not Started | -- | Blocked on client access |
-| 03 - Multi-Tenancy Design | `doc/03-multi-tenancy-design.md` | Phase 1 | Not Started | -- | -- |
-| 04 - Keycloak Configuration | `doc/04-keycloak-configuration.md` | Phase 2 | Not Started | -- | -- |
-| 05 - Infrastructure as Code | `doc/05-infrastructure-as-code.md` | Phase 3 | Drafted | 2026-03-07 | Generic; needs GKE/Oracle adaptation |
-| 06 - CI/CD Pipeline | `doc/06-ci-cd-pipeline.md` | Phase 3 | Not Started | -- | -- |
-| 07 - Observability | `doc/07-observability.md` | Phase 2/3 | Not Started | -- | -- |
-| 08 - Security Hardening | `doc/08-security-hardening.md` | Phase 2 | Not Started | -- | -- |
-| 09 - OPA Authorization | `doc/09-opa-authorization.md` | Phase 2 | Not Started | -- | -- |
-| 10 - Custom SPI Development | `doc/10-custom-spi-development.md` | Phase 2/3 | Not Started | -- | -- |
-| 11 - Migration Strategy | `doc/11-migration-strategy.md` | Phase 3 | Not Started | -- | -- |
-| 12 - Testing Strategy | `doc/12-testing-strategy.md` | Phase 3 | Not Started | -- | -- |
-| 13 - Operations Runbook | `doc/13-operations-runbook.md` | Phase 3 | Not Started | -- | -- |
-| 14 - Compliance and Governance | `doc/14-compliance-and-governance.md` | Phase 2/3 | Not Started | -- | -- |
+| 00 - Overview | [doc/00-overview.md](../doc/00-overview.md) | -- | Drafted | 2026-03-07 | Needs client-specific updates |
+| 01 - Target Architecture | [doc/01-target-architecture.md](../doc/01-target-architecture.md) | Phase 1 | Drafted | 2026-03-07 | Generic; needs GKE/Oracle/Apigee adaptation |
+| 02 - Analysis and Design | [doc/02-analysis-and-design.md](../doc/02-analysis-and-design.md) | Phase 2 | Drafted | 2026-03-07 | Needs client-specific updates |
+| 03 - Transformation and Execution | [doc/03-transformation-execution.md](../doc/03-transformation-execution.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 04 - Keycloak Configuration | [doc/04-keycloak-configuration.md](../doc/04-keycloak-configuration.md) | Phase 2 | Drafted | 2026-03-07 | -- |
+| 05 - Infrastructure as Code | [doc/05-infrastructure-as-code.md](../doc/05-infrastructure-as-code.md) | Phase 3 | Drafted | 2026-03-07 | Generic; needs GKE/Oracle adaptation |
+| 06 - CI/CD Pipelines | [doc/06-cicd-pipelines.md](../doc/06-cicd-pipelines.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 07 - Security by Design | [doc/07-security-by-design.md](../doc/07-security-by-design.md) | Phase 2 | Drafted | 2026-03-07 | -- |
+| 08 - Authentication and Authorization | [doc/08-authentication-authorization.md](../doc/08-authentication-authorization.md) | Phase 2 | Drafted | 2026-03-07 | -- |
+| 09 - User Lifecycle | [doc/09-user-lifecycle.md](../doc/09-user-lifecycle.md) | Phase 2/3 | Drafted | 2026-03-07 | -- |
+| 10 - Observability | [doc/10-observability.md](../doc/10-observability.md) | Phase 2/3 | Drafted | 2026-03-07 | -- |
+| 11 - Keycloak Customization | [doc/11-keycloak-customization.md](../doc/11-keycloak-customization.md) | Phase 2/3 | Drafted | 2026-03-07 | -- |
+| 12 - Environment Management | [doc/12-environment-management.md](../doc/12-environment-management.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 13 - Automation and Scripts | [doc/13-automation-scripts.md](../doc/13-automation-scripts.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 14 - Client Applications | [doc/14-client-applications.md](../doc/14-client-applications.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 15 - Multi-Tenancy Design | [doc/15-multi-tenancy-design.md](../doc/15-multi-tenancy-design.md) | Phase 1 | Drafted | 2026-03-07 | -- |
+| 16 - Operations Runbook | [doc/16-operations-runbook.md](../doc/16-operations-runbook.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 17 - Disaster Recovery | [doc/17-disaster-recovery.md](../doc/17-disaster-recovery.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 18 - Testing Strategy | [doc/18-testing-strategy.md](../doc/18-testing-strategy.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 19 - Migration Strategy | [doc/19-migration-strategy.md](../doc/19-migration-strategy.md) | Phase 3 | Drafted | 2026-03-07 | -- |
+| 20 - Compliance and Governance | [doc/20-compliance-governance.md](../doc/20-compliance-governance.md) | Phase 2/3 | Drafted | 2026-03-07 | -- |
 
-**Summary:** 3 of 15 documents drafted, 0 finalized, 12 not started.
+**Summary:** 21 of 21 documents drafted, 0 finalized.
 
 ---
 

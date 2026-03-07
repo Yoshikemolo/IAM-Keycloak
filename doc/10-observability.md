@@ -1,7 +1,7 @@
 # 10 - Observability Stack: OpenTelemetry, Prometheus, Grafana
 
 > **Project:** Enterprise IAM Platform based on Keycloak
-> **Related documents:** [User Lifecycle Management](./09-user-lifecycle.md) | [Security Hardening](./07-security-hardening.md) | [Infrastructure & Deployment](./04-infrastructure-deployment.md) | [Disaster Recovery](./08-disaster-recovery.md)
+> **Related documents:** [User Lifecycle Management](./09-user-lifecycle.md) | [Security by Design](./07-security-by-design.md) | [Infrastructure as Code](./05-infrastructure-as-code.md) | [Disaster Recovery](./17-disaster-recovery.md)
 
 ---
 
@@ -830,4 +830,4 @@ predict_linear(pg_database_size_bytes{datname="keycloak"}[30d], 90 * 24 * 3600)
 
 ---
 
-> **Next:** [CI/CD Pipeline](./11-cicd-pipeline.md) | **Previous:** [User Lifecycle Management](./09-user-lifecycle.md)
+> **Next:** [Keycloak Customization](./11-keycloak-customization.md) | **Previous:** [User Lifecycle Management](./09-user-lifecycle.md)

@@ -2,7 +2,7 @@
 
 > **Document:** 01-target-architecture.md
 > **Phase:** Phase 1 - Target Architecture
-> **Related:** [00 - Overview](./00-overview.md) | [02 - Analysis and Design](./02-analysis-and-design.md) | [03 - Multi-Tenancy Design](./03-multi-tenancy-design.md)
+> **Related:** [00 - Overview](./00-overview.md) | [02 - Analysis and Design](./02-analysis-and-design.md) | [04 - Keycloak Configuration](./04-keycloak-configuration.md) | [15 - Multi-Tenancy Design](./15-multi-tenancy-design.md)
 
 ---
 
@@ -139,7 +139,7 @@ graph LR
 - Independent authentication flows and security policies per tenant.
 - Per-tenant rate limiting at the ingress layer.
 
-For full details, see [03 - Multi-Tenancy Design](./03-multi-tenancy-design.md).
+For full details, see [04 - Keycloak Configuration](./04-keycloak-configuration.md).
 
 ---
 
@@ -270,7 +270,7 @@ The platform is designed for continuous availability with no single point of fai
 4. **Configuration replay:** Realm exports and Keycloak configuration are re-applied via CI/CD.
 5. **Validation:** Automated smoke tests verify authentication flows and tenant access.
 
-For detailed procedures, see [13 - Operations Runbook](./13-operations-runbook.md).
+For detailed procedures, see [13 - Automation and Scripts](./13-automation-scripts.md).
 
 ---
 
@@ -313,12 +313,13 @@ Resource requests and limits are defined per pod:
 |-------|----------|
 | Project overview and technology stack | [00 - Overview](./00-overview.md) |
 | Detailed analysis, data models, and auth flows | [02 - Analysis and Design](./02-analysis-and-design.md) |
-| Multi-tenancy deep dive | [03 - Multi-Tenancy Design](./03-multi-tenancy-design.md) |
+| Multi-tenancy deep dive | [15 - Multi-Tenancy Design](./15-multi-tenancy-design.md) |
 | Infrastructure as Code modules | [05 - Infrastructure as Code](./05-infrastructure-as-code.md) |
-| Observability stack design | [07 - Observability](./07-observability.md) |
-| Security hardening details | [08 - Security Hardening](./08-security-hardening.md) |
-| OPA authorization policies | [09 - OPA Authorization](./09-opa-authorization.md) |
-| Operations and incident response | [13 - Operations Runbook](./13-operations-runbook.md) |
+| Observability stack design | [10 - Observability](./10-observability.md) |
+| Security hardening details | [07 - Security by Design](./07-security-by-design.md) |
+| OPA authorization policies | [08 - Authentication and Authorization](./08-authentication-authorization.md) |
+| Operations and incident response | [16 - Operations Runbook](./16-operations-runbook.md) |
+| Disaster recovery and backup | [17 - Disaster Recovery](./17-disaster-recovery.md) |
 
 ---
 

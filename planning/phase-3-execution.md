@@ -9,6 +9,8 @@
 
 ## 1. Migration to Red Hat Build of Keycloak
 
+> See [doc/19 - Migration Strategy](../doc/19-migration-strategy.md) for the full migration approach, cutover plan, and risk mitigation.
+
 ### 1.1 Pre-Migration Preparation
 
 - [ ] Obtain Red Hat Build of Keycloak subscription and container images
@@ -166,6 +168,8 @@
 
 ## 6. Procedures and Runbooks
 
+> See [doc/16 - Operations Runbook](../doc/16-operations-runbook.md) and [doc/17 - Disaster Recovery](../doc/17-disaster-recovery.md) for detailed procedures.
+
 - [ ] Write operational runbook: routine Keycloak administration tasks
 - [ ] Write operational runbook: realm provisioning and configuration
 - [ ] Write operational runbook: user management (create, disable, delete, unlock)
@@ -264,6 +268,8 @@
 - [ ] Review Keycloak admin console access restrictions
 
 ### 9.4 Disaster Recovery Testing
+
+> See [doc/17 - Disaster Recovery](../doc/17-disaster-recovery.md) for DR procedures and [doc/18 - Testing Strategy](../doc/18-testing-strategy.md) for the full testing approach.
 
 - [ ] Test region failover (Belgium -> Madrid and reverse)
 - [ ] Test database restore from backup

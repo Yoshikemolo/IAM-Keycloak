@@ -1,7 +1,7 @@
 # 09 - User Lifecycle Management
 
 > **Project:** Enterprise IAM Platform based on Keycloak
-> **Related documents:** [Authentication & Authorization](./05-authentication-authorization.md) | [Observability](./10-observability.md) | [Security Hardening](./07-security-hardening.md) | [Multi-Tenancy](./06-multi-tenancy.md)
+> **Related documents:** [Authentication & Authorization](./08-authentication-authorization.md) | [Observability](./10-observability.md) | [Security by Design](./07-security-by-design.md) | [Multi-Tenancy Design](./15-multi-tenancy-design.md)
 
 ---
 
@@ -463,7 +463,7 @@ When a user exercises the right to erasure under GDPR Article 17:
 
 ### 8.1 User Isolation Between Realms
 
-In a multi-tenant architecture using Keycloak realms (see [Multi-Tenancy](./06-multi-tenancy.md)), users are fully isolated at the realm level:
+In a multi-tenant architecture using Keycloak realms (see [Keycloak Configuration](./04-keycloak-configuration.md)), users are fully isolated at the realm level:
 
 - Each realm maintains its own user store, credential policies, and session management.
 - There is no cross-realm visibility of user data by default.
@@ -575,4 +575,4 @@ flowchart LR
 
 ---
 
-> **Next:** [Observability Stack](./10-observability.md) | **Previous:** [Disaster Recovery](./08-disaster-recovery.md)
+> **Next:** [Observability Stack](./10-observability.md) | **Previous:** [Authentication and Authorization](./08-authentication-authorization.md)

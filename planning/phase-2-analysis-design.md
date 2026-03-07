@@ -196,14 +196,14 @@
 
 | Deliverable | Target Document | Status |
 |-------------|----------------|--------|
-| AS-IS analysis results | `doc/02-analysis-and-design.md` | Not Started |
-| Multi-tenancy design | `doc/03-multi-tenancy-design.md` | Not Started |
-| Keycloak configuration design | `doc/04-keycloak-configuration.md` | Not Started |
-| Observability design | `doc/07-observability.md` | Not Started |
-| Security hardening design | `doc/08-security-hardening.md` | Not Started |
-| OPA authorization design | `doc/09-opa-authorization.md` | Not Started |
-| Custom SPI requirements | `doc/10-custom-spi-development.md` | Not Started |
-| Compliance requirements | `doc/14-compliance-and-governance.md` | Not Started |
+| AS-IS analysis results | [doc/02-analysis-and-design.md](../doc/02-analysis-and-design.md) | Not Started |
+| Multi-tenancy and realm design | [doc/15-multi-tenancy-design.md](../doc/15-multi-tenancy-design.md) | Not Started |
+| Keycloak configuration design | [doc/04-keycloak-configuration.md](../doc/04-keycloak-configuration.md) | Not Started |
+| Observability design | [doc/10-observability.md](../doc/10-observability.md) | Not Started |
+| Security hardening design | [doc/07-security-by-design.md](../doc/07-security-by-design.md) | Not Started |
+| OPA authorization design | [doc/08-authentication-authorization.md](../doc/08-authentication-authorization.md) | Not Started |
+| Custom SPI requirements | [doc/11-keycloak-customization.md](../doc/11-keycloak-customization.md) | Not Started |
+| Compliance requirements | [doc/20-compliance-governance.md](../doc/20-compliance-governance.md) | Not Started |
 
 ---
 

@@ -29,6 +29,12 @@ This initiative follows a three-phase delivery model: Target Architecture defini
 | [12 - Environment Management](./12-environment-management.md) | Dev, QA, Prod Environments, Promotion | Phase 3 |
 | [13 - Automation and Scripts](./13-automation-scripts.md) | Runbooks, kcadm, REST API, CronJobs | Phase 3 |
 | [14 - Client Applications](./14-client-applications.md) | Integration Hub (10 framework-specific guides) | Phase 3 |
+| [15 - Multi-Tenancy Design](./15-multi-tenancy-design.md) | Realm-per-Tenant Strategy, Isolation, Tenant Lifecycle | Phase 1 |
+| [16 - Operations Runbook](./16-operations-runbook.md) | Incident Response, Day-2 Ops, Troubleshooting | Phase 3 |
+| [17 - Disaster Recovery](./17-disaster-recovery.md) | Backup, Failover, RPO/RTO, Multi-Region DR | Phase 3 |
+| [18 - Testing Strategy](./18-testing-strategy.md) | Unit, Integration, E2E, Performance, Security Testing | Phase 3 |
+| [19 - Migration Strategy](./19-migration-strategy.md) | Community KC to RHBK, Data Migration, Cutover | Phase 3 |
+| [20 - Compliance and Governance](./20-compliance-governance.md) | GDPR, Audit, Regulatory Compliance, Access Governance | Phase 2/3 |
 
 ### Client Application Guides (Document 14 Sub-Documents)
 

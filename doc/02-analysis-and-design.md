@@ -476,7 +476,7 @@ sequenceDiagram
 | IP address | Request metadata | Internal network CIDR |
 | Data classification | Resource metadata | `public`, `confidential`, `restricted` |
 
-For detailed OPA policy design, see [09 - OPA Authorization](./09-opa-authorization.md).
+For detailed OPA policy design, see [08 - Authentication and Authorization](./08-authentication-authorization.md).
 
 ---
 
@@ -579,7 +579,7 @@ sequenceDiagram
 
 ## 7. API Design for Custom Endpoints
 
-Custom REST endpoints are implemented as Keycloak SPI extensions (see [10 - Custom SPI Development](./10-custom-spi-development.md)).
+Custom REST endpoints are implemented as Keycloak SPI extensions (see [11 - Keycloak Customization](./11-keycloak-customization.md)).
 
 ### 7.1 Custom API Endpoints
 
@@ -626,7 +626,7 @@ All custom endpoints follow a consistent response envelope:
 | **E**levation of Privilege | Horizontal privilege escalation between tenants | Realm isolation | Low | Critical | Realm-level isolation, token audience validation, OPA tenant checks | Mitigated |
 | **E**levation of Privilege | Vertical privilege escalation via role manipulation | Role assignments | Low | Critical | Admin API access restricted, role assignment audit logging, OPA policy checks | Mitigated |
 
-For detailed security controls, see [08 - Security Hardening](./08-security-hardening.md).
+For detailed security controls, see [07 - Security by Design](./07-security-by-design.md).
 
 ---
 
@@ -675,11 +675,11 @@ For detailed security controls, see [08 - Security Hardening](./08-security-hard
 | Project overview and technology stack | [00 - Overview](./00-overview.md) |
 | High-level architecture and infrastructure | [01 - Target Architecture](./01-target-architecture.md) |
 | Keycloak Realm and client configuration | [04 - Keycloak Configuration](./04-keycloak-configuration.md) |
-| Security hardening and controls | [08 - Security Hardening](./08-security-hardening.md) |
-| OPA authorization policy design | [09 - OPA Authorization](./09-opa-authorization.md) |
-| Custom SPI development | [10 - Custom SPI Development](./10-custom-spi-development.md) |
-| Testing strategy and performance tests | [12 - Testing Strategy](./12-testing-strategy.md) |
-| Compliance and governance | [14 - Compliance and Governance](./14-compliance-and-governance.md) |
+| Security hardening and controls | [07 - Security by Design](./07-security-by-design.md) |
+| OPA authorization policy design | [08 - Authentication and Authorization](./08-authentication-authorization.md) |
+| Custom SPI development | [11 - Keycloak Customization](./11-keycloak-customization.md) |
+| Testing strategy and performance tests | [18 - Testing Strategy](./18-testing-strategy.md) |
+| Compliance and governance | [20 - Compliance and Governance](./20-compliance-governance.md) |
 
 ---
 

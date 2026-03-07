@@ -11,10 +11,10 @@ Every planning document captures not only what needs to be done, but also what h
 ## How to Use These Documents to Resume Work
 
 1. **Start here.** Read this README for the current project status and key decisions.
-2. **Check progress.** Open `progress-tracker.md` to see the latest milestone status, session log, and open questions.
-3. **Review context.** If you need full background, read `project-context.md` for the complete project history, stakeholder information, and technical details.
-4. **Pick up a phase.** Open the relevant phase document (`phase-1-target-architecture.md`, `phase-2-analysis-design.md`, or `phase-3-execution.md`) to see the current checklist and identify the next task.
-5. **Log your work.** After completing work, update the relevant phase document checkboxes, add an entry to the session log in `progress-tracker.md`, and record any new decisions or risks.
+2. **Check progress.** Open [progress-tracker.md](./progress-tracker.md) to see the latest milestone status, session log, and open questions.
+3. **Review context.** If you need full background, read [project-context.md](./project-context.md) for the complete project history, stakeholder information, and technical details.
+4. **Pick up a phase.** Open the relevant phase document ([phase-1-target-architecture.md](./phase-1-target-architecture.md), [phase-2-analysis-design.md](./phase-2-analysis-design.md), or [phase-3-execution.md](./phase-3-execution.md)) to see the current checklist and identify the next task.
+5. **Log your work.** After completing work, update the relevant phase document checkboxes, add an entry to the session log in [progress-tracker.md](./progress-tracker.md), and record any new decisions or risks.
 
 ---
 
@@ -35,22 +35,28 @@ The `doc/` folder contains the technical documentation set (documents 00 through
 
 | Document | Status |
 |----------|--------|
-| `doc/00-overview.md` | Drafted |
-| `doc/01-target-architecture.md` | Drafted |
-| `doc/02-analysis-and-design.md` | Drafted |
-| `doc/03-transformation-execution.md` | Drafted |
-| `doc/04-keycloak-configuration.md` | Drafted |
-| `doc/05-infrastructure-as-code.md` | Drafted |
-| `doc/06-cicd-pipelines.md` | Drafted |
-| `doc/07-security-by-design.md` | Drafted |
-| `doc/08-authentication-authorization.md` | Drafted |
-| `doc/09-user-lifecycle.md` | Drafted |
-| `doc/10-observability.md` | Drafted |
-| `doc/11-keycloak-customization.md` | Drafted |
-| `doc/12-environment-management.md` | Drafted |
-| `doc/13-automation-scripts.md` | Drafted |
-| `doc/14-client-applications.md` | Drafted |
-| `doc/14-01` through `doc/14-10` | Drafted (10 per-framework integration guides) |
+| [doc/00-overview.md](../doc/00-overview.md) | Drafted |
+| [doc/01-target-architecture.md](../doc/01-target-architecture.md) | Drafted |
+| [doc/02-analysis-and-design.md](../doc/02-analysis-and-design.md) | Drafted |
+| [doc/03-transformation-execution.md](../doc/03-transformation-execution.md) | Drafted |
+| [doc/04-keycloak-configuration.md](../doc/04-keycloak-configuration.md) | Drafted |
+| [doc/05-infrastructure-as-code.md](../doc/05-infrastructure-as-code.md) | Drafted |
+| [doc/06-cicd-pipelines.md](../doc/06-cicd-pipelines.md) | Drafted |
+| [doc/07-security-by-design.md](../doc/07-security-by-design.md) | Drafted |
+| [doc/08-authentication-authorization.md](../doc/08-authentication-authorization.md) | Drafted |
+| [doc/09-user-lifecycle.md](../doc/09-user-lifecycle.md) | Drafted |
+| [doc/10-observability.md](../doc/10-observability.md) | Drafted |
+| [doc/11-keycloak-customization.md](../doc/11-keycloak-customization.md) | Drafted |
+| [doc/12-environment-management.md](../doc/12-environment-management.md) | Drafted |
+| [doc/13-automation-scripts.md](../doc/13-automation-scripts.md) | Drafted |
+| [doc/14-client-applications.md](../doc/14-client-applications.md) | Drafted |
+| [doc/14-01](../doc/14-01-spring-boot.md) through [doc/14-10](../doc/14-10-quarkus.md) | Drafted (10 per-framework integration guides) |
+| [doc/15-multi-tenancy-design.md](../doc/15-multi-tenancy-design.md) | Drafted |
+| [doc/16-operations-runbook.md](../doc/16-operations-runbook.md) | Drafted |
+| [doc/17-disaster-recovery.md](../doc/17-disaster-recovery.md) | Drafted |
+| [doc/18-testing-strategy.md](../doc/18-testing-strategy.md) | Drafted |
+| [doc/19-migration-strategy.md](../doc/19-migration-strategy.md) | Drafted |
+| [doc/20-compliance-governance.md](../doc/20-compliance-governance.md) | Drafted |
 
 ---
 
@@ -64,7 +70,7 @@ The project is currently in a pre-execution documentation and planning phase. Th
 
 - RFP analysis and response (proposal submitted)
 - Questions sent to client and answers received
-- Full documentation set drafted (documents 00 through 14, including 10 per-framework integration guides 14-01 through 14-10)
+- Full documentation set drafted (documents 00 through 20, including 10 per-framework integration guides 14-01 through 14-10)
 - Planning folder and tracking documents created
 - Example project scaffolding for all supported frameworks (README, devops-menu.sh, tests)
 

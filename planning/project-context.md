@@ -280,25 +280,31 @@ The file `doc/X-IAM-Cuestiones-sobre-la-RFP_ES20260303001-RESPUESTAS.pdf` contai
 
 ## 10. Document Set Structure
 
-The project documentation follows a numbered structure (00-14) in the `doc/` folder:
+The project documentation follows a numbered structure (00-20) in the `doc/` folder:
 
 | # | Title | Phase | Purpose |
 |---|-------|-------|---------|
-| 00 | Overview | -- | Project index, technology stack, conventions |
-| 01 | Target Architecture | Phase 1 | High-level architecture, design principles, HA/DR |
-| 02 | Analysis and Design | Phase 2 | Requirements, data models, auth flows, security |
-| 03 | Multi-Tenancy Design | Phase 1 | Realm-per-tenant strategy, isolation |
-| 04 | Keycloak Configuration | Phase 2 | Realm, client, provider configuration |
-| 05 | Infrastructure as Code | Phase 3 | Terraform, Helm, Kubernetes manifests |
-| 06 | CI/CD Pipeline | Phase 3 | Build, test, deploy automation |
-| 07 | Observability | Phase 2/3 | Monitoring, logging, alerting |
-| 08 | Security Hardening | Phase 2 | Security controls, TLS, network policies |
-| 09 | OPA Authorization | Phase 2 | Fine-grained authorization with OPA |
-| 10 | Custom SPI Development | Phase 2/3 | Keycloak Service Provider Interfaces |
-| 11 | Migration Strategy | Phase 3 | Data migration, cutover planning |
-| 12 | Testing Strategy | Phase 3 | Testing approach, performance, security tests |
-| 13 | Operations Runbook | Phase 3 | Day-2 operations, incident response |
-| 14 | Compliance and Governance | Phase 2/3 | Regulatory compliance, audit readiness |
+| [00](../doc/00-overview.md) | Overview | -- | Project index, technology stack, conventions |
+| [01](../doc/01-target-architecture.md) | Target Architecture | Phase 1 | High-level architecture, design principles, HA/DR |
+| [02](../doc/02-analysis-and-design.md) | Analysis and Design | Phase 2 | Requirements, data models, auth flows, security |
+| [03](../doc/03-transformation-execution.md) | Transformation and Execution | Phase 3 | Implementation roadmap, sprint plan, go-live |
+| [04](../doc/04-keycloak-configuration.md) | Keycloak Configuration | Phase 2 | Realm, client, provider configuration |
+| [05](../doc/05-infrastructure-as-code.md) | Infrastructure as Code | Phase 3 | Terraform, Helm, Kubernetes manifests |
+| [06](../doc/06-cicd-pipelines.md) | CI/CD Pipelines | Phase 3 | Build, test, deploy automation |
+| [07](../doc/07-security-by-design.md) | Security by Design | Phase 2 | OWASP, Pod Security, OPA, Secrets, TLS, Audit |
+| [08](../doc/08-authentication-authorization.md) | Authentication and Authorization | Phase 2 | OIDC, SAML, JWT, MFA, RBAC, OPA |
+| [09](../doc/09-user-lifecycle.md) | User Lifecycle | Phase 2/3 | Provisioning, credentials, sessions, GDPR |
+| [10](../doc/10-observability.md) | Observability | Phase 2/3 | OpenTelemetry, Prometheus, Grafana, SLI/SLO |
+| [11](../doc/11-keycloak-customization.md) | Keycloak Customization | Phase 2/3 | Themes, SPIs, email templates |
+| [12](../doc/12-environment-management.md) | Environment Management | Phase 3 | Dev, QA, Prod environments, promotion |
+| [13](../doc/13-automation-scripts.md) | Automation and Scripts | Phase 3 | Runbooks, kcadm, REST API, CronJobs |
+| [14](../doc/14-client-applications.md) | Client Applications | Phase 3 | Integration hub (10 framework-specific guides) |
+| [15](../doc/15-multi-tenancy-design.md) | Multi-Tenancy Design | Phase 1 | Realm-per-tenant strategy, isolation, tenant lifecycle |
+| [16](../doc/16-operations-runbook.md) | Operations Runbook | Phase 3 | Incident response, day-2 ops, troubleshooting |
+| [17](../doc/17-disaster-recovery.md) | Disaster Recovery | Phase 3 | Backup, failover, RPO/RTO, multi-region DR |
+| [18](../doc/18-testing-strategy.md) | Testing Strategy | Phase 3 | Unit, integration, E2E, performance, security testing |
+| [19](../doc/19-migration-strategy.md) | Migration Strategy | Phase 3 | Community KC to RHBK, data migration, cutover |
+| [20](../doc/20-compliance-governance.md) | Compliance and Governance | Phase 2/3 | GDPR, audit, regulatory compliance |
 
 ---
 
@@ -306,7 +312,7 @@ The project documentation follows a numbered structure (00-14) in the `doc/` fol
 
 When resuming work on this project:
 
-1. **Always check `planning/progress-tracker.md` first** for the latest status, open questions, and session log.
+1. **Always check [planning/progress-tracker.md](./progress-tracker.md) first** for the latest status, open questions, and session log.
 2. **The existing doc/01 and doc/05 are generic templates** that use PostgreSQL and AWS/Azure examples. They must be adapted to the client's actual stack (GKE, Oracle DB, Apigee).
 3. **The client's primary language is Spanish.** All RFP documents and communications are in Spanish. Project documentation is in English.
 4. **Ximplicity is the provider, not the client.** Do not confuse roles. X-IAM is the client; Ximplicity provides Keycloak expertise.

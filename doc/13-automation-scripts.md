@@ -1197,9 +1197,9 @@ spec:
 
 ## Related Documents
 
-- [Architecture Overview](./01-architecture-overview.md)
-- [Infrastructure and Deployment](./03-infrastructure-deployment.md)
-- [Monitoring, Logging, and Alerting](./10-monitoring-logging-alerting.md)
-- [Disaster Recovery and Backup](./11-disaster-recovery-backup.md)
-- [Security and Hardening](./12-security-hardening.md)
-- [Client Application Integration Guide](./14-client-applications.md)
+- [Target Architecture](./01-target-architecture.md)
+- [Infrastructure as Code](./05-infrastructure-as-code.md)
+- [Observability](./10-observability.md)
+- [Environment Management](./12-environment-management.md)
+- [Security by Design](./07-security-by-design.md)
+- [Client Applications](./14-client-applications.md)
