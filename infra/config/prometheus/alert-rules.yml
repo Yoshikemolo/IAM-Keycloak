@@ -1,0 +1,270 @@
+###############################################################################
+# alert-rules.yml
+# Prometheus alerting rules for the IAM platform.
+#
+# Groups:
+#   - keycloak-availability: Keycloak instance health and uptime
+#   - keycloak-performance: Latency, error rates, resource saturation
+#   - keycloak-security: Authentication failures, brute-force detection
+#   - database-health: PostgreSQL connectivity and performance
+#   - infrastructure: Node and pod resource utilization
+###############################################################################
+
+groups:
+
+  # =========================================================================
+  # Keycloak Availability Alerts
+  # =========================================================================
+  - name: keycloak-availability
+    rules:
+
+      # -- Keycloak instance is down ------------------------------------------
+      - alert: KeycloakDown
+        expr: up{job="keycloak"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: keycloak
+        annotations:
+          summary: "Keycloak instance is down"
+          description: >
+            Keycloak instance {{ $labels.instance }} has been unreachable
+            for more than 2 minutes. Authentication services are unavailable.
+          runbook_url: "https://wiki.internal/runbook/keycloak-down"
+
+      # -- All Keycloak replicas are down ------------------------------------
+      - alert: KeycloakAllReplicasDown
+        expr: count(up{job="keycloak"} == 1) == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: keycloak
+        annotations:
+          summary: "All Keycloak replicas are down"
+          description: >
+            No Keycloak instance is responding. Complete authentication
+            outage. Immediate action required.
+
+      # -- Keycloak pod restart loop -----------------------------------------
+      - alert: KeycloakPodRestartLoop
+        expr: increase(kube_pod_container_status_restarts_total{container="keycloak"}[1h]) > 3
+        for: 5m
+        labels:
+          severity: warning
+          component: keycloak
+        annotations:
+          summary: "Keycloak pod is in a restart loop"
+          description: >
+            Pod {{ $labels.pod }} has restarted more than 3 times in the
+            last hour. Investigate container logs for crash reasons.
+
+  # =========================================================================
+  # Keycloak Performance Alerts
+  # =========================================================================
+  - name: keycloak-performance
+    rules:
+
+      # -- High HTTP error rate (5xx) ----------------------------------------
+      - alert: KeycloakHighErrorRate
+        expr: >
+          sum(rate(http_server_requests_seconds_count{job="keycloak",status=~"5.."}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{job="keycloak"}[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: keycloak
+        annotations:
+          summary: "Keycloak HTTP 5xx error rate exceeds 5%"
+          description: >
+            The proportion of HTTP 5xx responses from Keycloak has exceeded
+            5% over the last 5 minutes. Current rate: {{ $value | humanizePercentage }}.
+
+      # -- High response latency (p99) --------------------------------------
+      - alert: KeycloakHighLatency
+        expr: >
+          histogram_quantile(0.99,
+            sum(rate(http_server_requests_seconds_bucket{job="keycloak"}[5m])) by (le)
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          component: keycloak
+        annotations:
+          summary: "Keycloak p99 latency exceeds 2 seconds"
+          description: >
+            The 99th percentile response time for Keycloak has exceeded
+            2 seconds. Current p99: {{ $value | humanizeDuration }}.
+
+      # -- JVM heap memory usage high ----------------------------------------
+      - alert: KeycloakJvmHeapHigh
+        expr: >
+          jvm_memory_used_bytes{job="keycloak",area="heap"}
+          /
+          jvm_memory_max_bytes{job="keycloak",area="heap"}
+          > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          component: keycloak
+        annotations:
+          summary: "Keycloak JVM heap usage exceeds 85%"
+          description: >
+            JVM heap memory on {{ $labels.instance }} is at
+            {{ $value | humanizePercentage }}. Risk of OutOfMemoryError
+            if usage continues to grow.
+
+      # -- JVM heap memory critical ------------------------------------------
+      - alert: KeycloakJvmHeapCritical
+        expr: >
+          jvm_memory_used_bytes{job="keycloak",area="heap"}
+          /
+          jvm_memory_max_bytes{job="keycloak",area="heap"}
+          > 0.95
+        for: 5m
+        labels:
+          severity: critical
+          component: keycloak
+        annotations:
+          summary: "Keycloak JVM heap usage exceeds 95%"
+          description: >
+            JVM heap memory on {{ $labels.instance }} is critically high
+            at {{ $value | humanizePercentage }}. Immediate action required.
+
+  # =========================================================================
+  # Keycloak Security Alerts
+  # =========================================================================
+  - name: keycloak-security
+    rules:
+
+      # -- High rate of failed authentication attempts -----------------------
+      - alert: KeycloakHighAuthFailureRate
+        expr: >
+          sum(rate(keycloak_login_error_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: keycloak
+          category: security
+        annotations:
+          summary: "High rate of authentication failures"
+          description: >
+            More than 10 authentication failures per second over the last
+            5 minutes. Possible brute-force attack or misconfigured client.
+            Current rate: {{ $value }} failures/sec.
+
+      # -- Suspicious login spike -------------------------------------------
+      - alert: KeycloakLoginSpike
+        expr: >
+          sum(rate(keycloak_login_total[5m]))
+          > 3 * sum(rate(keycloak_login_total[1h]))
+        for: 5m
+        labels:
+          severity: warning
+          component: keycloak
+          category: security
+        annotations:
+          summary: "Unusual spike in login attempts"
+          description: >
+            Login rate is 3x higher than the hourly average. Investigate
+            for potential credential stuffing or automated attacks.
+
+  # =========================================================================
+  # Database Health Alerts
+  # =========================================================================
+  - name: database-health
+    rules:
+
+      # -- PostgreSQL is down ------------------------------------------------
+      - alert: PostgreSQLDown
+        expr: up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL database is unreachable"
+          description: >
+            PostgreSQL exporter cannot connect to the database.
+            Keycloak will be unable to persist session and user data.
+
+      # -- Database connection pool near exhaustion --------------------------
+      - alert: PostgreSQLConnectionPoolHigh
+        expr: >
+          pg_stat_activity_count{datname="keycloak"}
+          /
+          pg_settings_max_connections
+          > 0.80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL connection pool usage exceeds 80%"
+          description: >
+            Active connections to the keycloak database are at
+            {{ $value | humanizePercentage }} of max_connections.
+            Consider increasing pool limits or investigating connection leaks.
+
+      # -- Slow queries detected ---------------------------------------------
+      - alert: PostgreSQLSlowQueries
+        expr: >
+          rate(pg_stat_activity_max_tx_duration{datname="keycloak"}[5m]) > 30
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Long-running queries detected in PostgreSQL"
+          description: >
+            Queries running longer than 30 seconds detected in the
+            keycloak database. Investigate query performance.
+
+  # =========================================================================
+  # Infrastructure Alerts
+  # =========================================================================
+  - name: infrastructure
+    rules:
+
+      # -- High CPU utilization on nodes -------------------------------------
+      - alert: HighNodeCPU
+        expr: >
+          100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Node CPU utilization exceeds 85%"
+          description: >
+            CPU utilization on {{ $labels.instance }} has been above 85%
+            for 10 minutes. Current usage: {{ $value | humanize }}%.
+
+      # -- High memory utilization on nodes ----------------------------------
+      - alert: HighNodeMemory
+        expr: >
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.90
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Node memory utilization exceeds 90%"
+          description: >
+            Memory usage on {{ $labels.instance }} is at
+            {{ $value | humanizePercentage }}. Risk of OOM kills.
+
+      # -- Disk space running low --------------------------------------------
+      - alert: DiskSpaceLow
+        expr: >
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.15
+        for: 10m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "Disk space is below 15%"
+          description: >
+            Available disk space on {{ $labels.instance }} is below 15%.
+            Current available: {{ $value | humanizePercentage }}.

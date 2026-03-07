@@ -1,0 +1,22 @@
+###############################################################################
+# dashboards.yml
+# Grafana dashboard provisioning configuration.
+#
+# Automatically loads dashboard JSON files from the specified directory
+# when Grafana starts. Dashboards are read-only by default to prevent
+# drift from the version-controlled source.
+###############################################################################
+
+apiVersion: 1
+
+providers:
+  - name: "IAM Platform Dashboards"
+    orgId: 1
+    type: file
+    disableDeletion: false
+    editable: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

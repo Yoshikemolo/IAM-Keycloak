@@ -1,0 +1,183 @@
+###############################################################################
+# otel-collector-config.yml
+# OpenTelemetry Collector configuration for the IAM platform.
+#
+# Pipeline architecture:
+#   Receivers  -> Processors -> Exporters
+#
+# Receivers:
+#   - otlp: Accepts OTLP over gRPC (4317) and HTTP (4318) from Keycloak
+#           and application services.
+#
+# Processors:
+#   - batch: Batches telemetry data before export to reduce network overhead.
+#   - memory_limiter: Prevents the collector from consuming excessive memory.
+#   - attributes: Adds environment and service metadata to all signals.
+#
+# Exporters:
+#   - prometheus: Exposes metrics on :8889 for Prometheus scraping.
+#   - otlp/jaeger: Forwards traces to Jaeger for distributed tracing.
+#   - debug: Logs telemetry data at debug level (development only).
+###############################################################################
+
+# ---------------------------------------------------------------------------
+# Receivers
+# ---------------------------------------------------------------------------
+receivers:
+
+  # OTLP receiver -- accepts traces, metrics, and logs from instrumented
+  # applications via gRPC and HTTP protocols.
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:4317"
+      http:
+        endpoint: "0.0.0.0:4318"
+
+# ---------------------------------------------------------------------------
+# Processors
+# ---------------------------------------------------------------------------
+processors:
+
+  # Batch processor -- groups spans, metrics, and logs into batches
+  # before sending to exporters. Reduces network overhead.
+  batch:
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+    timeout: 5s
+
+  # Memory limiter -- prevents the collector from running out of memory
+  # by applying backpressure when usage exceeds thresholds.
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Attributes processor -- adds common metadata to all telemetry signals.
+  attributes:
+    actions:
+      - key: deployment.environment
+        value: "${OTEL_ENVIRONMENT:-dev}"
+        action: upsert
+      - key: service.namespace
+        value: "iam"
+        action: upsert
+      - key: service.version
+        value: "${SERVICE_VERSION:-0.0.0}"
+        action: upsert
+
+  # Resource processor -- sets resource-level attributes.
+  resource:
+    attributes:
+      - key: host.name
+        from_attribute: host.name
+        action: upsert
+      - key: cloud.provider
+        value: "gcp"
+        action: upsert
+      - key: cloud.platform
+        value: "gcp_kubernetes_engine"
+        action: upsert
+
+# ---------------------------------------------------------------------------
+# Exporters
+# ---------------------------------------------------------------------------
+exporters:
+
+  # Prometheus exporter -- exposes collected metrics in Prometheus format
+  # on port 8889 for scraping.
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "otel"
+    const_labels:
+      collector: "otel-collector"
+    send_timestamps: true
+    metric_expiration: 5m
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # OTLP exporter to Jaeger -- forwards trace data for distributed
+  # tracing visualization and analysis.
+  otlp/jaeger:
+    endpoint: "${JAEGER_ENDPOINT:-jaeger:4317}"
+    tls:
+      insecure: true
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  # Debug exporter -- logs telemetry data to stdout for development.
+  # Set verbosity to "detailed" for full payload inspection.
+  debug:
+    verbosity: basic
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+# ---------------------------------------------------------------------------
+# Extensions
+# ---------------------------------------------------------------------------
+extensions:
+
+  # Health check extension -- provides /health endpoint for liveness probes.
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+  # zPages extension -- provides in-process diagnostics at /debug.
+  zpages:
+    endpoint: "0.0.0.0:55679"
+
+# ---------------------------------------------------------------------------
+# Service -- defines the telemetry pipelines
+# ---------------------------------------------------------------------------
+service:
+  extensions:
+    - health_check
+    - zpages
+
+  pipelines:
+
+    # Traces pipeline: receive OTLP traces, process, export to Jaeger
+    traces:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - attributes
+        - resource
+        - batch
+      exporters:
+        - otlp/jaeger
+        - debug
+
+    # Metrics pipeline: receive OTLP metrics, process, export to Prometheus
+    metrics:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - attributes
+        - resource
+        - batch
+      exporters:
+        - prometheus
+        - debug
+
+    # Logs pipeline: receive OTLP logs, process, export to debug
+    logs:
+      receivers:
+        - otlp
+      processors:
+        - memory_limiter
+        - attributes
+        - resource
+        - batch
+      exporters:
+        - debug
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: "0.0.0.0:8888"

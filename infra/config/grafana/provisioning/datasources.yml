@@ -1,0 +1,46 @@
+###############################################################################
+# datasources.yml
+# Grafana datasource provisioning configuration.
+#
+# Automatically configures Prometheus and Loki datasources when Grafana
+# starts. No manual datasource setup required.
+###############################################################################
+
+apiVersion: 1
+
+# Delete datasources that are no longer in this file
+deleteDatasources: []
+
+datasources:
+  # -------------------------------------------------------------------------
+  # Prometheus -- primary metrics datasource
+  # -------------------------------------------------------------------------
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    uid: prometheus
+    jsonData:
+      # Time interval matching Prometheus scrape_interval
+      timeInterval: "15s"
+      # Enable query type selection in Explore
+      queryTimeout: "60s"
+      httpMethod: POST
+    version: 1
+
+  # -------------------------------------------------------------------------
+  # Loki -- log aggregation datasource
+  # -------------------------------------------------------------------------
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    editable: false
+    uid: loki
+    jsonData:
+      maxLines: 1000
+      timeout: "60s"
+    version: 1

@@ -1,0 +1,164 @@
+###############################################################################
+# recording-rules.yml
+# Prometheus recording rules for the IAM platform.
+#
+# Pre-computes frequently-used or expensive queries to improve dashboard
+# performance and reduce load on Prometheus at query time.
+###############################################################################
+
+groups:
+
+  # =========================================================================
+  # Keycloak Authentication Metrics
+  # Pre-computed rates for login success, failure, and overall auth activity.
+  # =========================================================================
+  - name: keycloak-auth-recording
+    interval: 15s
+    rules:
+
+      # -- Login success rate (per second, 5-minute window) ------------------
+      - record: keycloak:login_success:rate5m
+        expr: sum(rate(keycloak_login_total[5m])) or vector(0)
+        labels:
+          component: keycloak
+
+      # -- Login failure rate (per second, 5-minute window) ------------------
+      - record: keycloak:login_error:rate5m
+        expr: sum(rate(keycloak_login_error_total[5m])) or vector(0)
+        labels:
+          component: keycloak
+
+      # -- Login success ratio (successful / total) -------------------------
+      - record: keycloak:login_success_ratio:rate5m
+        expr: >
+          (
+            sum(rate(keycloak_login_total[5m]))
+            /
+            (sum(rate(keycloak_login_total[5m])) + sum(rate(keycloak_login_error_total[5m])))
+          ) or vector(1)
+        labels:
+          component: keycloak
+
+      # -- Login attempts per realm ------------------------------------------
+      - record: keycloak:login_total_by_realm:rate5m
+        expr: sum by (realm) (rate(keycloak_login_total[5m])) or vector(0)
+        labels:
+          component: keycloak
+
+  # =========================================================================
+  # Keycloak HTTP Metrics
+  # Pre-computed HTTP request rates, latencies, and error ratios.
+  # =========================================================================
+  - name: keycloak-http-recording
+    interval: 15s
+    rules:
+
+      # -- Total HTTP request rate -------------------------------------------
+      - record: keycloak:http_requests:rate5m
+        expr: sum(rate(http_server_requests_seconds_count{job="keycloak"}[5m])) or vector(0)
+        labels:
+          component: keycloak
+
+      # -- HTTP request rate by status code class ----------------------------
+      - record: keycloak:http_requests_by_status:rate5m
+        expr: >
+          sum by (status) (rate(http_server_requests_seconds_count{job="keycloak"}[5m]))
+          or vector(0)
+        labels:
+          component: keycloak
+
+      # -- HTTP 5xx error ratio ----------------------------------------------
+      - record: keycloak:http_error_ratio:rate5m
+        expr: >
+          (
+            sum(rate(http_server_requests_seconds_count{job="keycloak",status=~"5.."}[5m]))
+            /
+            sum(rate(http_server_requests_seconds_count{job="keycloak"}[5m]))
+          ) or vector(0)
+        labels:
+          component: keycloak
+
+      # -- Response time percentiles -----------------------------------------
+      - record: keycloak:http_latency_p50:rate5m
+        expr: >
+          histogram_quantile(0.50,
+            sum(rate(http_server_requests_seconds_bucket{job="keycloak"}[5m])) by (le)
+          ) or vector(0)
+        labels:
+          component: keycloak
+
+      - record: keycloak:http_latency_p95:rate5m
+        expr: >
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket{job="keycloak"}[5m])) by (le)
+          ) or vector(0)
+        labels:
+          component: keycloak
+
+      - record: keycloak:http_latency_p99:rate5m
+        expr: >
+          histogram_quantile(0.99,
+            sum(rate(http_server_requests_seconds_bucket{job="keycloak"}[5m])) by (le)
+          ) or vector(0)
+        labels:
+          component: keycloak
+
+  # =========================================================================
+  # Keycloak JVM Metrics
+  # Pre-computed JVM resource utilization for dashboard panels.
+  # =========================================================================
+  - name: keycloak-jvm-recording
+    interval: 30s
+    rules:
+
+      # -- JVM heap usage ratio ----------------------------------------------
+      - record: keycloak:jvm_heap_usage_ratio
+        expr: >
+          jvm_memory_used_bytes{job="keycloak",area="heap"}
+          /
+          jvm_memory_max_bytes{job="keycloak",area="heap"}
+        labels:
+          component: keycloak
+
+      # -- JVM non-heap usage ------------------------------------------------
+      - record: keycloak:jvm_nonheap_used_bytes
+        expr: jvm_memory_used_bytes{job="keycloak",area="nonheap"}
+        labels:
+          component: keycloak
+
+      # -- JVM GC rate -------------------------------------------------------
+      - record: keycloak:jvm_gc_rate:rate5m
+        expr: sum by (gc) (rate(jvm_gc_pause_seconds_count{job="keycloak"}[5m]))
+        labels:
+          component: keycloak
+
+      # -- JVM GC duration ---------------------------------------------------
+      - record: keycloak:jvm_gc_duration:rate5m
+        expr: sum by (gc) (rate(jvm_gc_pause_seconds_sum{job="keycloak"}[5m]))
+        labels:
+          component: keycloak
+
+      # -- JVM thread count --------------------------------------------------
+      - record: keycloak:jvm_threads_current
+        expr: jvm_threads_live_threads{job="keycloak"}
+        labels:
+          component: keycloak
+
+  # =========================================================================
+  # Keycloak Session Metrics
+  # =========================================================================
+  - name: keycloak-session-recording
+    interval: 30s
+    rules:
+
+      # -- Active user sessions across all realms ----------------------------
+      - record: keycloak:active_sessions_total
+        expr: sum(keycloak_sessions_active) or vector(0)
+        labels:
+          component: keycloak
+
+      # -- Active sessions by realm ------------------------------------------
+      - record: keycloak:active_sessions_by_realm
+        expr: sum by (realm) (keycloak_sessions_active) or vector(0)
+        labels:
+          component: keycloak
