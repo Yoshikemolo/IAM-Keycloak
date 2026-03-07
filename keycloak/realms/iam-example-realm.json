@@ -1,0 +1,385 @@
+{
+  "id": "iam-example",
+  "realm": "iam-example",
+  "displayName": "IAM Example Tenant",
+  "displayNameHtml": "<strong>IAM</strong> Example Tenant",
+  "enabled": true,
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 5,
+  "sslRequired": "external",
+  "defaultSignatureAlgorithm": "RS256",
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "accessTokenLifespan": 300,
+  "accessTokenLifespanForImplicitFlow": 900,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "ssoSessionIdleTimeoutRememberMe": 0,
+  "ssoSessionMaxLifespanRememberMe": 0,
+  "offlineSessionIdleTimeout": 2592000,
+  "offlineSessionMaxLifespanEnabled": true,
+  "offlineSessionMaxLifespan": 5184000,
+  "accessCodeLifespan": 60,
+  "accessCodeLifespanUserAction": 300,
+  "accessCodeLifespanLogin": 1800,
+  "actionTokenGeneratedByAdminLifespan": 43200,
+  "actionTokenGeneratedByUserLifespan": 300,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "es"],
+  "defaultLocale": "en",
+  "rememberMe": true,
+  "verifyEmail": true,
+  "loginTheme": "custom-theme",
+  "accountTheme": "keycloak.v2",
+  "adminTheme": "keycloak.v2",
+  "emailTheme": "custom-theme",
+  "eventsEnabled": true,
+  "eventsExpiration": 7776000,
+  "eventsListeners": ["jboss-logging", "ximplicity-audit-listener"],
+  "enabledEventTypes": [
+    "LOGIN",
+    "LOGIN_ERROR",
+    "LOGOUT",
+    "LOGOUT_ERROR",
+    "REGISTER",
+    "REGISTER_ERROR",
+    "CODE_TO_TOKEN",
+    "CODE_TO_TOKEN_ERROR",
+    "CLIENT_LOGIN",
+    "CLIENT_LOGIN_ERROR",
+    "REFRESH_TOKEN",
+    "REFRESH_TOKEN_ERROR",
+    "UPDATE_PASSWORD",
+    "RESET_PASSWORD",
+    "UPDATE_TOTP",
+    "REMOVE_TOTP",
+    "VERIFY_EMAIL",
+    "GRANT_CONSENT",
+    "REVOKE_GRANT",
+    "TOKEN_EXCHANGE",
+    "TOKEN_EXCHANGE_ERROR",
+    "IMPERSONATE"
+  ],
+  "adminEventsEnabled": true,
+  "adminEventsDetailsEnabled": true,
+  "smtpServer": {
+    "host": "smtp.example.com",
+    "port": "587",
+    "fromDisplayName": "IAM Platform",
+    "from": "noreply@example.com",
+    "replyToDisplayName": "",
+    "replyTo": "",
+    "envelopeFrom": "",
+    "starttls": "true",
+    "ssl": "false",
+    "auth": "true",
+    "user": "smtp-user",
+    "password": "**********"
+  },
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and notUsername and passwordHistory(5) and maxLength(128)",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA256",
+  "otpPolicyDigits": 6,
+  "otpPolicyInitialCounter": 0,
+  "otpPolicyPeriod": 30,
+  "otpPolicyLookAheadWindow": 1,
+  "browserSecurityHeaders": {
+    "contentSecurityPolicyReportOnly": "",
+    "xContentTypeOptions": "nosniff",
+    "referrerPolicy": "no-referrer",
+    "xRobotsTag": "none",
+    "xFrameOptions": "SAMEORIGIN",
+    "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+    "xXSSProtection": "1; mode=block",
+    "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+  },
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Full administrative access within this tenant",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "manager",
+        "description": "Management access: user provisioning, reports, configuration",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "user",
+        "description": "Standard end-user access",
+        "composite": false,
+        "clientRole": false
+      },
+      {
+        "name": "viewer",
+        "description": "Read-only access to resources",
+        "composite": false,
+        "clientRole": false
+      }
+    ],
+    "client": {
+      "iam-backend": [
+        {
+          "name": "api-read",
+          "description": "Read access to backend API resources",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "api-write",
+          "description": "Write access to backend API resources",
+          "composite": false,
+          "clientRole": true
+        },
+        {
+          "name": "api-admin",
+          "description": "Administrative access to backend API resources",
+          "composite": false,
+          "clientRole": true
+        }
+      ]
+    }
+  },
+  "groups": [
+    {
+      "name": "administrators",
+      "path": "/administrators",
+      "realmRoles": ["admin"],
+      "clientRoles": {
+        "iam-backend": ["api-admin", "api-write", "api-read"]
+      },
+      "subGroups": []
+    },
+    {
+      "name": "managers",
+      "path": "/managers",
+      "realmRoles": ["manager"],
+      "clientRoles": {
+        "iam-backend": ["api-write", "api-read"]
+      },
+      "subGroups": []
+    },
+    {
+      "name": "standard-users",
+      "path": "/standard-users",
+      "realmRoles": ["user"],
+      "clientRoles": {
+        "iam-backend": ["api-read"]
+      },
+      "subGroups": []
+    }
+  ],
+  "defaultDefaultClientScopes": [
+    "profile",
+    "email",
+    "roles",
+    "web-origins",
+    "acr"
+  ],
+  "defaultOptionalClientScopes": [
+    "offline_access",
+    "address",
+    "phone",
+    "microprofile-jwt"
+  ],
+  "clients": [
+    {
+      "clientId": "iam-frontend",
+      "name": "IAM Frontend Application",
+      "description": "Public client for SPA frontends (Next.js, Angular, React, Vue)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "rootUrl": "https://app.example.com",
+      "baseUrl": "/",
+      "redirectUris": [
+        "https://app.example.com/*",
+        "http://localhost:3000/*",
+        "http://localhost:4200/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "https://app.example.com",
+        "http://localhost:3000",
+        "http://localhost:4200",
+        "http://localhost:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://app.example.com/*##http://localhost:3000/*##http://localhost:4200/*##http://localhost:5173/*",
+        "access.token.lifespan": "300",
+        "client.session.idle.timeout": "1800"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins",
+        "acr"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ]
+    },
+    {
+      "clientId": "iam-backend",
+      "name": "IAM Backend Service",
+      "description": "Confidential client for backend services (Spring Boot, Quarkus, .NET, NestJS, Express, FastAPI)",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "secret": "change-me-in-production",
+      "rootUrl": "https://api.example.com",
+      "baseUrl": "/",
+      "redirectUris": [
+        "https://api.example.com/*",
+        "http://localhost:8081/*",
+        "http://localhost:8082/*",
+        "http://localhost:5000/*",
+        "http://localhost:3001/*"
+      ],
+      "webOrigins": ["+"],
+      "attributes": {
+        "access.token.lifespan": "300",
+        "client.session.idle.timeout": "1800"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles",
+        "web-origins"
+      ],
+      "optionalClientScopes": [
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "iam-service-account",
+      "name": "IAM Machine-to-Machine Client",
+      "description": "Service account client for backend-to-backend communication using client_credentials grant",
+      "enabled": true,
+      "publicClient": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "secret": "change-me-in-production",
+      "attributes": {
+        "access.token.lifespan": "600"
+      },
+      "defaultClientScopes": [
+        "roles"
+      ],
+      "optionalClientScopes": []
+    }
+  ],
+  "users": [
+    {
+      "username": "admin-user",
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "groups": ["/administrators"],
+      "realmRoles": ["admin"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "change-me-on-first-login",
+          "temporary": true
+        }
+      ],
+      "attributes": {
+        "tenant_role": ["owner"]
+      }
+    },
+    {
+      "username": "test-user",
+      "email": "user@example.com",
+      "firstName": "Test",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "groups": ["/standard-users"],
+      "realmRoles": ["user"],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "change-me-on-first-login",
+          "temporary": true
+        }
+      ],
+      "attributes": {
+        "tenant_role": ["member"]
+      }
+    }
+  ],
+  "requiredActions": [
+    {
+      "alias": "CONFIGURE_TOTP",
+      "name": "Configure OTP",
+      "providerId": "CONFIGURE_TOTP",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 10
+    },
+    {
+      "alias": "UPDATE_PASSWORD",
+      "name": "Update Password",
+      "providerId": "UPDATE_PASSWORD",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 30
+    },
+    {
+      "alias": "UPDATE_PROFILE",
+      "name": "Update Profile",
+      "providerId": "UPDATE_PROFILE",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 40
+    },
+    {
+      "alias": "VERIFY_EMAIL",
+      "name": "Verify Email",
+      "providerId": "VERIFY_EMAIL",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 50
+    },
+    {
+      "alias": "TERMS_AND_CONDITIONS",
+      "name": "Terms and Conditions",
+      "providerId": "TERMS_AND_CONDITIONS",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 60
+    }
+  ]
+}
