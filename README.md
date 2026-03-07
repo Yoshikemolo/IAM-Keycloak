@@ -129,18 +129,18 @@ Keycloak, particularly the Red Hat Build of Keycloak, provides a foundation that
 
 | Framework / Assessment | Relevance to IAM |
 |------------------------|------------------|
-| **SOC 2 Type II** | Access controls, authentication policies, session management, audit logging |
-| **ISO/IEC 27001:2022** | Information security management, access control (Annex A.9), cryptography, operations security |
-| **ISO/IEC 27017:2015** | Cloud-specific security controls for identity and access management |
-| **GDPR (EU)** | Consent management, right to be forgotten, data minimization, lawful processing |
-| **NIST SP 800-63** | Digital identity guidelines: identity proofing, authentication assurance levels, federation |
-| **NIST Cybersecurity Framework (CSF)** | Identify, Protect, Detect functions; access control category |
-| **PCI DSS v4.0** | Strong access control measures, MFA requirements, credential management |
-| **HIPAA** | Access controls, audit controls, authentication mechanisms for electronic health information |
-| **FedRAMP** | Federal identity and access management requirements; MFA, federation, continuous monitoring |
-| **CIS Controls v8** | Control 5 (Account Management), Control 6 (Access Control Management) |
-| **OWASP ASVS v4.0** | Application Security Verification Standard: authentication, session management, access control |
-| **eIDAS (EU)** | Electronic identification and trust services; authentication assurance levels |
+| **<a href="https://access.redhat.com/compliance/soc-2-type-2" target="_blank">SOC 2 Type II</a>** | Access controls, authentication policies, session management, audit logging |
+| **<a href="https://access.redhat.com/articles/compliance_activities_and_gov_standards" target="_blank">ISO/IEC 27001:2022</a>** | Information security management, access control (Annex A.9), cryptography, operations security |
+| **<a href="https://www.keycloak.org/docs/latest/server_admin/index.html" target="_blank">ISO/IEC 27017:2015</a>** | Cloud-specific security controls for identity and access management |
+| **<a href="https://www.keycloak.org/docs/latest/server_admin/index.html#user-consent" target="_blank">GDPR (EU)</a>** | Consent management, right to be forgotten, data minimization, lawful processing |
+| **<a href="https://www.keycloak.org/securing-apps/specifications" target="_blank">NIST SP 800-63</a>** | Digital identity guidelines: identity proofing, authentication assurance levels, federation |
+| **<a href="https://www.keycloak.org/security" target="_blank">NIST Cybersecurity Framework (CSF)</a>** | Identify, Protect, Detect functions; access control category |
+| **<a href="https://www.keycloak.org/docs/latest/server_admin/index.html#otp-policies" target="_blank">PCI DSS v4.0</a>** | Strong access control measures, MFA requirements, credential management |
+| **<a href="https://www.keycloak.org/server/logging" target="_blank">HIPAA</a>** | Access controls, audit controls, authentication mechanisms for electronic health information |
+| **<a href="https://access.redhat.com/compliance/fedramp" target="_blank">FedRAMP</a>** | Federal identity and access management requirements; MFA, federation, continuous monitoring |
+| **<a href="https://www.keycloak.org/docs/latest/server_admin/index.html#user-management" target="_blank">CIS Controls v8</a>** | Control 5 (Account Management), Control 6 (Access Control Management) |
+| **<a href="https://www.keycloak.org/docs/latest/authorization_services/index.html" target="_blank">OWASP ASVS v4.0</a>** | Application Security Verification Standard: authentication, session management, access control |
+| **<a href="https://www.keycloak.org/2022/05/oidc-certifications" target="_blank">eIDAS (EU)</a>** | Electronic identification and trust services; authentication assurance levels |
 
 Using Keycloak provides auditable, documented, and standards-based implementations for each of these areas, significantly reducing the effort required to pass assessments and obtain certifications.
 
