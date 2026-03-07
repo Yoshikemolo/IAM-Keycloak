@@ -1,0 +1,49 @@
+<!-- Application header bar -->
+<header class="app-header">
+  <!-- Left: Logo + Title -->
+  <a routerLink="/" class="app-header-left" style="text-decoration: none">
+    <img
+      [src]="logoSrc()"
+      alt="Ximplicity"
+      class="app-header-logo"
+    />
+    <span class="app-header-title">{{ 'app.title' | translate }}</span>
+  </a>
+
+  <!-- Right: Controls -->
+  <div class="app-header-right">
+    <app-theme-toggle />
+    <app-language-selector />
+
+    @if (isAuthenticated$ | async; as authResult) {
+      @if (authResult.isAuthenticated) {
+        @if (userData$ | async; as userResult) {
+          <span class="header-user-name">{{ getUserName(userResult.userData) }}</span>
+        }
+        <button
+          class="btn btn-sm"
+          type="button"
+          (click)="logout()"
+        >
+          {{ 'header.logout' | translate }}
+        </button>
+      } @else {
+        <button
+          class="btn btn-sm btn-primary"
+          type="button"
+          (click)="login()"
+        >
+          {{ 'header.login' | translate }}
+        </button>
+      }
+    } @else {
+      <button
+        class="btn btn-sm btn-primary"
+        type="button"
+        (click)="login()"
+      >
+        {{ 'header.login' | translate }}
+      </button>
+    }
+  </div>
+</header>

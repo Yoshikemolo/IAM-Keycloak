@@ -1,0 +1,23 @@
+<!-- Profile page (protected) - shows all OIDC claims -->
+<div class="page">
+  <h1 class="page-title">{{ 'profile.title' | translate }}</h1>
+  <p class="page-description">{{ 'profile.description' | translate }}</p>
+
+  @if (userData$ | async; as userResult) {
+    <div class="card">
+      <h2 class="card-title">{{ 'profile.claimsTitle' | translate }}</h2>
+      <div class="info-list-vertical">
+        @for (item of userResult.userData | keyvalue; track item.key) {
+          <div class="info-list-item">
+            <div class="info-label">{{ item.key }}</div>
+            @if (isPrimitive(item.value)) {
+              <div class="info-value">{{ item.value }}</div>
+            } @else {
+              <pre class="claim-json">{{ formatValue(item.value) }}</pre>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

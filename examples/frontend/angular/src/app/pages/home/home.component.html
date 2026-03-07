@@ -1,0 +1,45 @@
+<!-- Home page -->
+<div class="page">
+  <h1 class="page-title">{{ 'home.title' | translate }}</h1>
+  <p class="page-description">{{ 'home.description' | translate }}</p>
+
+  @if (isAuthenticated$ | async; as authResult) {
+    @if (authResult.isAuthenticated) {
+      <!-- Authenticated user view -->
+      <div class="home-authenticated">
+        @if (userData$ | async; as userResult) {
+          <p class="home-greeting">
+            {{ 'home.greeting' | translate:{ name: getUserName(userResult.userData) } }}
+          </p>
+        }
+        <a routerLink="/dashboard" class="btn btn-primary">
+          {{ 'home.goToDashboard' | translate }}
+        </a>
+      </div>
+    } @else {
+      <!-- Unauthenticated user view -->
+      <div class="home-unauthenticated">
+        <p class="home-cta-text">{{ 'home.ctaText' | translate }}</p>
+        <button
+          class="btn btn-primary"
+          type="button"
+          (click)="login()"
+        >
+          {{ 'home.signIn' | translate }}
+        </button>
+      </div>
+    }
+  } @else {
+    <!-- Default unauthenticated view (before auth check completes) -->
+    <div class="home-unauthenticated">
+      <p class="home-cta-text">{{ 'home.ctaText' | translate }}</p>
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="login()"
+      >
+        {{ 'home.signIn' | translate }}
+      </button>
+    </div>
+  }
+</div>
