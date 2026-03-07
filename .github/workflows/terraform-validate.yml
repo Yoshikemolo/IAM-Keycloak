@@ -1,0 +1,117 @@
+###############################################################################
+# terraform-validate.yml
+# Validates Terraform configuration on pull requests.
+#
+# Runs format checking, validation, TFLint, and Checkov security scanning
+# to ensure infrastructure-as-code quality before merging.
+###############################################################################
+
+name: Terraform Validate
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform-validate.yml"
+
+concurrency:
+  group: terraform-validate-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.9.5"
+  TFLINT_VERSION: "v0.53.0"
+  WORKING_DIR: infra/terraform
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Format check -- enforce consistent HCL formatting
+  # -------------------------------------------------------------------------
+  fmt:
+    name: Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform fmt check
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform fmt -check -recursive -diff
+
+  # -------------------------------------------------------------------------
+  # Validate -- syntax and provider validation
+  # -------------------------------------------------------------------------
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    needs: fmt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform init (backend=false)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform validate -no-color
+
+  # -------------------------------------------------------------------------
+  # TFLint -- linting and best-practice enforcement
+  # -------------------------------------------------------------------------
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    needs: fmt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: ${{ env.TFLINT_VERSION }}
+
+      - name: Initialize TFLint
+        working-directory: ${{ env.WORKING_DIR }}
+        run: tflint --init
+
+      - name: Run TFLint
+        working-directory: ${{ env.WORKING_DIR }}
+        run: tflint --recursive --format compact
+
+  # -------------------------------------------------------------------------
+  # Checkov -- infrastructure security scanning
+  # -------------------------------------------------------------------------
+  checkov:
+    name: Checkov Security Scan
+    runs-on: ubuntu-latest
+    needs: fmt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ env.WORKING_DIR }}
+          framework: terraform
+          output_format: cli
+          soft_fail: true
+          quiet: true

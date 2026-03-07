@@ -1,0 +1,90 @@
+###############################################################################
+# helm-lint.yml
+# Lint Helm charts on pull requests.
+#
+# Validates chart structure, templates, and values to catch issues
+# before they reach the cluster.
+###############################################################################
+
+name: Helm Lint
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - "infra/helm/**"
+      - ".github/workflows/helm-lint.yml"
+
+concurrency:
+  group: helm-lint-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  HELM_VERSION: "v3.16.1"
+
+jobs:
+  lint:
+    name: Lint Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Add Helm repositories
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+
+      - name: Lint all charts
+        run: |
+          CHARTS_FOUND=0
+          for chart_dir in infra/helm/*/; do
+            if [ -f "${chart_dir}/Chart.yaml" ]; then
+              echo "Linting chart: ${chart_dir}"
+              helm lint "${chart_dir}" --strict
+              CHARTS_FOUND=$((CHARTS_FOUND + 1))
+            fi
+          done
+          if [ "${CHARTS_FOUND}" -eq 0 ]; then
+            echo "No Helm charts found in infra/helm/"
+            exit 0
+          fi
+          echo "Linted ${CHARTS_FOUND} chart(s) successfully."
+
+      - name: Template render (dry-run validation)
+        run: |
+          for chart_dir in infra/helm/*/; do
+            if [ -f "${chart_dir}/Chart.yaml" ]; then
+              CHART_NAME=$(basename "${chart_dir}")
+              echo "Rendering template: ${CHART_NAME}"
+              helm template "${CHART_NAME}" "${chart_dir}" \
+                --debug \
+                > /dev/null
+            fi
+          done
+
+      - name: Helm chart-testing (ct lint)
+        uses: helm/chart-testing-action@v2
+        with:
+          version: v3.11.0
+        continue-on-error: true
+
+      - name: Run chart-testing lint
+        run: |
+          ct lint \
+            --chart-dirs infra/helm \
+            --target-branch ${{ github.event.pull_request.base.ref }} \
+            --validate-maintainers=false \
+            || echo "ct lint completed (some warnings may be expected)"

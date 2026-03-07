@@ -1,0 +1,176 @@
+###############################################################################
+# security-scan.yml
+# Container image security scanning and dependency checking.
+#
+# Uses Trivy for image vulnerability scanning and dependency auditing
+# across the entire repository.
+###############################################################################
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - "keycloak/**"
+      - "infra/docker/**"
+      - "**/Dockerfile*"
+      - "**/package-lock.json"
+      - "**/pom.xml"
+      - "**/requirements*.txt"
+      - ".github/workflows/security-scan.yml"
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    # Run weekly on Mondays at 06:00 UTC for ongoing vulnerability detection
+    - cron: "0 6 * * 1"
+
+concurrency:
+  group: security-scan-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  TRIVY_VERSION: "0.56.1"
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Trivy filesystem scan -- dependencies and IaC
+  # -------------------------------------------------------------------------
+  filesystem-scan:
+    name: Filesystem Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan (vulnerabilities)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: Run Trivy filesystem scan (SARIF output)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-fs-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload Trivy SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-fs-results.sarif"
+
+  # -------------------------------------------------------------------------
+  # Trivy IaC scan -- Terraform, Kubernetes, Docker misconfigurations
+  # -------------------------------------------------------------------------
+  iac-scan:
+    name: IaC Misconfiguration Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy IaC scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: "config"
+          scan-ref: "infra/"
+          format: "table"
+          severity: "CRITICAL,HIGH,MEDIUM"
+          exit-code: "0"
+          skip-dirs: "infra/tests"
+
+      - name: Run Trivy IaC scan (SARIF output)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: "config"
+          scan-ref: "infra/"
+          format: "sarif"
+          output: "trivy-iac-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload IaC SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-iac-results.sarif"
+
+  # -------------------------------------------------------------------------
+  # Docker image scan -- build and scan the Keycloak image
+  # -------------------------------------------------------------------------
+  image-scan:
+    name: Image Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Keycloak image for scanning
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/Dockerfile.keycloak
+          push: false
+          load: true
+          tags: iam-keycloak:scan
+          cache-from: type=gha
+
+      - name: Scan Keycloak image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "iam-keycloak:scan"
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: Scan image (SARIF output)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "iam-keycloak:scan"
+          format: "sarif"
+          output: "trivy-image-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload image SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-image-results.sarif"
+
+  # -------------------------------------------------------------------------
+  # Dockerfile linting with Hadolint
+  # -------------------------------------------------------------------------
+  dockerfile-lint:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile.keycloak
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/docker/Dockerfile.keycloak
+          failure-threshold: warning
+
+      - name: Lint Dockerfile.tools
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: infra/docker/Dockerfile.tools
+          failure-threshold: warning
