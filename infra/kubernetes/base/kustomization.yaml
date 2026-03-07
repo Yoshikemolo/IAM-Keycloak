@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# Kustomization: base
+# Purpose: Top-level base kustomization that aggregates all IAM platform
+#          resources. Environment-specific overlays (dev, qa, prod) reference
+#          this base and apply strategic merge patches to customize values.
+#
+# Common labels are applied to all resources for consistent identification,
+# querying, and management across the platform.
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# -- Common labels applied to all resources --
+commonLabels:
+  app.kubernetes.io/part-of: iam-platform
+  app.kubernetes.io/managed-by: kustomize
+
+# -- Namespace resources --
+resources:
+  - namespace.yaml
+  - keycloak
+  - network-policies
+  - rbac
+  - security
+  - storage

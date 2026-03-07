@@ -1,0 +1,191 @@
+# =========================================================================
+# values-prod.yaml -- Production environment overrides
+# =========================================================================
+# Usage:
+#   helm upgrade --install xiam-kc ./infra/helm/keycloak \
+#     -f ./infra/helm/keycloak/values.yaml \
+#     -f ./infra/helm/keycloak/values-prod.yaml \
+#     -n xiam-prod
+#
+# Characteristics:
+#   - 3 base replicas with strict HPA (min:3, max:10)
+#   - Large resource allocation
+#   - WARN-only logging (reduce noise)
+#   - JSON log format for structured log aggregation
+#   - Strict PDB (minAvailable: 2)
+#   - All security features enabled
+#   - External secrets only (no inline passwords)
+#   - Optimized Keycloak build for faster startup
+# =========================================================================
+
+replicaCount: 3
+
+# -------------------------------------------------------------------------
+# Keycloak overrides
+# -------------------------------------------------------------------------
+keycloak:
+  hostname: "iam.xiam.example.com"
+  hostnameStrict: "true"
+  logLevel: "WARN"
+  logFormat: "json"
+  optimized: true
+  features: "token-exchange,admin-fine-grained-authz,declarative-user-profile"
+
+  database:
+    vendor: "oracle"
+    url: "jdbc:oracle:thin:@//oracle-prod:1521/keycloakdb"
+    username: "keycloak_prod"
+    # MANDATORY: Use a pre-existing Secret managed by External Secrets Operator
+    existingSecret: "xiam-keycloak-db-prod"
+
+  admin:
+    # MANDATORY: Use a pre-existing Secret managed by External Secrets Operator
+    existingSecret: "xiam-keycloak-admin-prod"
+
+  cache:
+    type: "ispn"
+    stack: "kubernetes"
+    jgroupsPort: 7800
+
+  javaOpts: "-XX:MaxRAMPercentage=70.0 -XX:+UseG1GC -XX:+UseStringDeduplication"
+
+# -------------------------------------------------------------------------
+# Resources -- large allocation for production workloads
+# -------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 1000m
+    memory: 1Gi
+  limits:
+    cpu: 4000m
+    memory: 4Gi
+
+# -------------------------------------------------------------------------
+# Probes -- strict for production
+# -------------------------------------------------------------------------
+startupProbe:
+  path: /health/started
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 60
+
+livenessProbe:
+  path: /health/live
+  initialDelaySeconds: 0
+  periodSeconds: 15
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  path: /health/ready
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# -------------------------------------------------------------------------
+# Autoscaling -- strict for production
+# -------------------------------------------------------------------------
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
+  scaleUpStabilization: 60
+  scaleDownStabilization: 600
+
+# -------------------------------------------------------------------------
+# PDB -- strict: at least 2 pods always available
+# -------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# -------------------------------------------------------------------------
+# Ingress
+# -------------------------------------------------------------------------
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "KC_ROUTE"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "600"
+    nginx.ingress.kubernetes.io/rate-limit: "50"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: iam.xiam.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - iam.xiam.example.com
+      secretName: xiam-keycloak-prod-tls
+
+# -------------------------------------------------------------------------
+# Network policy -- strict
+# -------------------------------------------------------------------------
+networkPolicy:
+  enabled: true
+  ingressControllerNamespace: "ingress-nginx"
+  monitoringNamespace: "monitoring"
+
+# -------------------------------------------------------------------------
+# Metrics -- full observability
+# -------------------------------------------------------------------------
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    scrapeTimeout: 10s
+    labels:
+      release: kube-prometheus-stack
+
+# -------------------------------------------------------------------------
+# ServiceAccount with GKE Workload Identity
+# -------------------------------------------------------------------------
+serviceAccount:
+  create: true
+  annotations:
+    iam.gke.io/gcp-service-account: "keycloak-prod@xiam-project.iam.gserviceaccount.com"
+
+# -------------------------------------------------------------------------
+# Scheduling -- target dedicated node pool with zone anti-affinity
+# -------------------------------------------------------------------------
+nodeSelector:
+  cloud.google.com/gke-nodepool: keycloak-pool
+
+tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "keycloak"
+    effect: "NoSchedule"
+
+# Explicit topology spread for multi-zone HA
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: xiam-keycloak
+
+# -------------------------------------------------------------------------
+# Pod annotations for production
+# -------------------------------------------------------------------------
+podAnnotations:
+  cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+
+# -------------------------------------------------------------------------
+# Graceful shutdown -- longer window for production traffic
+# -------------------------------------------------------------------------
+terminationGracePeriodSeconds: 120

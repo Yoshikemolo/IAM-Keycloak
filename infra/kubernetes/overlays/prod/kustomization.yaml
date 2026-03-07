@@ -1,0 +1,47 @@
+# -----------------------------------------------------------------------------
+# Kustomization: prod overlay
+# Purpose: Applies production-specific patches to the base manifests. Enforces
+#          strict security, high availability, and generous resource allocation
+#          for the production IAM platform.
+#
+# Usage:
+#   kubectl apply -k infra/kubernetes/overlays/prod/
+#   kustomize build infra/kubernetes/overlays/prod/ | kubectl apply -f -
+#
+# Pre-deployment checklist:
+#   1. Verify keycloak-db-credentials Secret exists in iam-system namespace.
+#   2. Verify keycloak-admin-credentials Secret exists in iam-system namespace.
+#   3. Verify cert-manager ClusterIssuer "letsencrypt-prod" is configured.
+#   4. Verify GKE Workload Identity binding is in place.
+#   5. Run: kustomize build infra/kubernetes/overlays/prod/ | kubectl diff -f -
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# -- Base reference --
+resources:
+  - ../../base
+
+# -- Namespace --
+namespace: iam-system
+
+# -- Common labels for prod environment --
+commonLabels:
+  app.kubernetes.io/instance: keycloak-prod
+  environment: prod
+
+# -- Common annotations --
+commonAnnotations:
+  environment: production
+  team: iam-platform
+
+# -- Patches --
+patches:
+  - path: patches/keycloak-replicas.yaml
+  - path: patches/keycloak-resources.yaml
+  - path: patches/keycloak-env.yaml
+  - path: patches/hpa-scale.yaml
+  - path: patches/pdb-prod.yaml
+  - path: patches/resource-quota.yaml
+  # ConfigMap override.
+  - path: configmap-env.yaml

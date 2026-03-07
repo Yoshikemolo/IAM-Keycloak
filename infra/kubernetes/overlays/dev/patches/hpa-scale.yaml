@@ -1,0 +1,14 @@
+# -----------------------------------------------------------------------------
+# Patch: hpa-scale (dev)
+# Purpose: Reduces HPA scaling range for development. Minimum 1 replica to
+#          save resources; maximum 2 to cap costs while still allowing basic
+#          autoscaling validation.
+# -----------------------------------------------------------------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  minReplicas: 1
+  maxReplicas: 2

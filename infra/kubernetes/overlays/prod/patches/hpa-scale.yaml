@@ -1,0 +1,14 @@
+# -----------------------------------------------------------------------------
+# Patch: hpa-scale (prod)
+# Purpose: Sets production HPA range. Minimum 3 replicas ensures HA across
+#          zones even during scale-down. Maximum 10 provides headroom for
+#          peak traffic (e.g., morning login storms, batch operations).
+# -----------------------------------------------------------------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  minReplicas: 3
+  maxReplicas: 10

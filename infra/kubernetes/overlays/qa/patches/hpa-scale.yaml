@@ -1,0 +1,13 @@
+# -----------------------------------------------------------------------------
+# Patch: hpa-scale (qa)
+# Purpose: Sets HPA range for QA -- minimum 2 replicas for HA validation,
+#          maximum 5 to allow moderate load testing without excessive costs.
+# -----------------------------------------------------------------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  minReplicas: 2
+  maxReplicas: 5

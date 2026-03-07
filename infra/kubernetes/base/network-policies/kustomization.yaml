@@ -1,0 +1,15 @@
+# -----------------------------------------------------------------------------
+# Kustomization: network-policies (base)
+# Purpose: Aggregates all NetworkPolicy resources implementing the zero-trust
+#          network model for the iam-system namespace.
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - default-deny-all.yaml
+  - allow-keycloak-ingress.yaml
+  - allow-keycloak-to-db.yaml
+  - allow-keycloak-dns.yaml
+  - allow-keycloak-jgroups.yaml
+  - allow-prometheus-scrape.yaml

@@ -1,0 +1,22 @@
+# -----------------------------------------------------------------------------
+# Patch: resource-quota (dev)
+# Purpose: Relaxed resource quotas for the development environment to allow
+#          experimentation and debugging without hitting limits prematurely.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: iam-system-quota
+  namespace: iam-system
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    pods: "15"
+    services: "10"
+    configmaps: "20"
+    secrets: "20"
+    persistentvolumeclaims: "5"
+    replicationcontrollers: "5"

@@ -1,0 +1,19 @@
+# -----------------------------------------------------------------------------
+# Patch: keycloak-env (prod)
+# Purpose: Sets WARN log level for production to minimize log volume and
+#          focus on actionable warnings and errors. JSON output is maintained
+#          for structured log aggregation.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: keycloak
+          env:
+            - name: KC_LOG_LEVEL
+              value: WARN

@@ -1,0 +1,25 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: default-deny-all
+# Purpose: Implements a zero-trust network posture for the iam-system namespace
+#          by denying ALL ingress and egress traffic by default. Every allowed
+#          communication path must be explicitly defined in a separate
+#          NetworkPolicy resource.
+#
+# This is the foundational policy of the defense-in-depth strategy.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  # Applies to ALL pods in the namespace (empty selector = match all).
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

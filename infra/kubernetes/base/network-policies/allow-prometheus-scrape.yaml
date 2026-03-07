@@ -1,0 +1,34 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: allow-prometheus-scrape
+# Purpose: Allows Prometheus to scrape metrics from Keycloak pods on the
+#          management port (9000). Prometheus is identified by its namespace
+#          label (monitoring).
+#
+# Keycloak exposes Prometheus-format metrics at /metrics on the management
+# interface when KC_METRICS_ENABLED=true.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-prometheus-scrape
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Allow traffic from the monitoring namespace (Prometheus).
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9000

@@ -1,0 +1,38 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: allow-keycloak-dns
+# Purpose: Allows Keycloak pods to perform DNS resolution via the cluster DNS
+#          service (CoreDNS / kube-dns) on port 53 (TCP and UDP).
+#
+# Without this policy, the default-deny-all rule would prevent all name
+# resolution, breaking service discovery and external hostname lookups.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-keycloak-dns
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        # CoreDNS runs in the kube-system namespace.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

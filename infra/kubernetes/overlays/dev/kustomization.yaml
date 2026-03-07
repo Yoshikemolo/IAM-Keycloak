@@ -1,0 +1,41 @@
+# -----------------------------------------------------------------------------
+# Kustomization: dev overlay
+# Purpose: Applies development-specific patches to the base manifests.
+#          Reduces resource consumption, enables verbose logging, and relaxes
+#          security constraints for easier debugging.
+#
+# Usage:
+#   kubectl apply -k infra/kubernetes/overlays/dev/
+#   kustomize build infra/kubernetes/overlays/dev/ | kubectl apply -f -
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# -- Base reference --
+resources:
+  - ../../base
+
+# -- Namespace --
+namespace: iam-system
+
+# -- Common labels for dev environment --
+commonLabels:
+  app.kubernetes.io/instance: keycloak-dev
+  environment: dev
+
+# -- Common annotations --
+commonAnnotations:
+  environment: development
+  team: iam-platform
+
+# -- ConfigMap replacement --
+# Replaces the base ConfigMap with dev-specific values.
+patches:
+  # Strategic merge patches for Keycloak deployment.
+  - path: patches/keycloak-replicas.yaml
+  - path: patches/keycloak-resources.yaml
+  - path: patches/keycloak-env.yaml
+  - path: patches/hpa-scale.yaml
+  - path: patches/resource-quota.yaml
+  # ConfigMap override.
+  - path: configmap-env.yaml

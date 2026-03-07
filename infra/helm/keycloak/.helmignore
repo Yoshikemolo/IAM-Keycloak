@@ -1,0 +1,37 @@
+# ---------------------------------------------------------------------------
+# .helmignore -- Patterns to ignore when packaging the Helm chart
+# ---------------------------------------------------------------------------
+
+# Version control
+.git/
+.gitignore
+.gitmodules
+
+# IDE / editor artefacts
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+.travis.yml
+
+# Documentation sources (README is kept for helm show readme)
+CONTRIBUTING.md
+CHANGELOG.md
+LICENSE
+
+# Test artefacts
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Helm packaging artefacts
+*.tgz
+.helmignore.bak

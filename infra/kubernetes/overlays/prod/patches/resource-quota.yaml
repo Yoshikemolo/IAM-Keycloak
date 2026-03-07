@@ -1,0 +1,23 @@
+# -----------------------------------------------------------------------------
+# Patch: resource-quota (prod)
+# Purpose: Strict resource quotas for production. Sized to accommodate the
+#          maximum expected workload (10 Keycloak pods at full resource limits)
+#          plus supporting services, while preventing unbounded growth.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: iam-system-quota
+  namespace: iam-system
+spec:
+  hard:
+    requests.cpu: "16"
+    requests.memory: "32Gi"
+    limits.cpu: "32"
+    limits.memory: "64Gi"
+    pods: "25"
+    services: "10"
+    configmaps: "20"
+    secrets: "20"
+    persistentvolumeclaims: "10"
+    replicationcontrollers: "10"

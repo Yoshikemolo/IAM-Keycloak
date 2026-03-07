@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# Chart.yaml -- Helm chart metadata for X-IAM Keycloak deployment
+# ---------------------------------------------------------------------------
+# This chart deploys Keycloak 26 on Google Kubernetes Engine (GKE) as the
+# central Identity and Access Management (IAM) component for the X-IAM
+# enterprise platform.  It includes support for multi-region deployment,
+# Oracle DB backend, Infinispan distributed caching with KUBE_PING
+# discovery, and Prometheus metrics.
+# ---------------------------------------------------------------------------
+
+apiVersion: v2
+name: xiam-keycloak
+description: >-
+  Enterprise Keycloak 26 deployment for X-IAM -- provides OpenID Connect,
+  SAML 2.0, and OAuth 2.0 identity services on GKE with Oracle DB backend,
+  Infinispan distributed caching, and full observability.
+
+type: application
+version: 1.0.0
+appVersion: "26.4.2"
+
+home: https://github.com/ximplicity/IAM-Keycloak
+icon: https://www.keycloak.org/resources/images/keycloak_icon_512px.svg
+
+keywords:
+  - keycloak
+  - iam
+  - identity
+  - authentication
+  - authorization
+  - oidc
+  - saml
+  - oauth2
+  - sso
+  - gke
+
+maintainers:
+  - name: Jorge Rodriguez
+    email: jorge@ximplicity.com
+
+sources:
+  - https://github.com/ximplicity/IAM-Keycloak
+  - https://www.keycloak.org/
+  - https://quay.io/repository/keycloak/keycloak
+
+kubeVersion: ">=1.27.0-0"

@@ -1,0 +1,57 @@
+# -----------------------------------------------------------------------------
+# HorizontalPodAutoscaler: keycloak
+# Purpose: Automatically scales Keycloak replicas based on CPU and memory
+#          utilization. The min/max values are overridden per environment.
+#
+# Scaling behaviour is tuned for stability:
+#   - Scale up quickly (60s stabilization) to handle traffic spikes.
+#   - Scale down slowly (300s stabilization) to avoid flapping.
+# -----------------------------------------------------------------------------
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/version: "26.4.2"
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: keycloak
+  # Default min/max -- overridden per overlay.
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # Scale based on average CPU utilization across all pods.
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # Scale based on average memory utilization across all pods.
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120

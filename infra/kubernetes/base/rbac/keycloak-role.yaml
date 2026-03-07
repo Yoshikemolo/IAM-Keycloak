@@ -1,0 +1,40 @@
+# -----------------------------------------------------------------------------
+# Role: keycloak
+# Purpose: Grants minimal RBAC permissions to the Keycloak service account
+#          within the iam-system namespace. The permissions are:
+#
+#   - configmaps (get, list): Required for JGroups KUBE_PING discovery
+#     protocol, which reads ConfigMaps to discover peer pods.
+#   - secrets (get): Required to read TLS certificates and other secrets
+#     mounted by the pod.
+#   - pods (get, list): Required for KUBE_PING to enumerate Keycloak pods
+#     for cluster formation.
+#
+# This follows the principle of least privilege -- only the minimum
+# permissions needed for Keycloak to function correctly in a Kubernetes
+# environment.
+# -----------------------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+rules:
+  # ConfigMaps: needed for JGroups KUBE_PING discovery.
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+  # Secrets: needed for reading mounted secrets.
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get"]
+  # Pods: needed for KUBE_PING peer discovery.
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]

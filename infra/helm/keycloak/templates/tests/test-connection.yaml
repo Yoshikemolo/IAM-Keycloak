@@ -1,0 +1,46 @@
+{{/*
+==========================================================================
+test-connection.yaml -- Helm test for Keycloak health endpoint
+==========================================================================
+Runs a lightweight busybox pod that performs a wget against the Keycloak
+management health endpoint.  Execute with: helm test <release>
+*/}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "xiam-keycloak.fullname" . }}-test-connection
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: wget
+      image: busybox:1.37
+      command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Testing Keycloak health endpoint..."
+          wget --timeout=10 --tries=3 -qO- \
+            http://{{ include "xiam-keycloak.fullname" . }}:9000/health/ready
+          echo ""
+          echo "Health check passed."
+      resources:
+        limits:
+          cpu: 50m
+          memory: 32Mi
+        requests:
+          cpu: 10m
+          memory: 16Mi
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

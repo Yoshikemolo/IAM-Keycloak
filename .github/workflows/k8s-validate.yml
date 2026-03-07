@@ -1,0 +1,119 @@
+###############################################################################
+# k8s-validate.yml
+# Validate Kubernetes manifests on pull requests using kubeconform.
+#
+# Ensures all YAML manifests are syntactically correct and conform to
+# the Kubernetes API schema before they are applied to any cluster.
+###############################################################################
+
+name: K8s Manifest Validation
+
+on:
+  pull_request:
+    branches: [main, dev]
+    paths:
+      - "infra/kubernetes/**"
+      - ".github/workflows/k8s-validate.yml"
+
+concurrency:
+  group: k8s-validate-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  KUBECONFORM_VERSION: "v0.6.7"
+  K8S_VERSION: "1.30.0"
+
+jobs:
+  validate:
+    name: Validate Manifests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sL "https://github.com/yannh/kubeconform/releases/download/${{ env.KUBECONFORM_VERSION }}/kubeconform-linux-amd64.tar.gz" \
+            | tar xz -C /usr/local/bin kubeconform
+
+      - name: Validate base manifests
+        run: |
+          echo "Validating base Kubernetes manifests..."
+          find infra/kubernetes/base -name "*.yaml" -o -name "*.yml" | head -n 1 > /dev/null 2>&1 || {
+            echo "No YAML files found in infra/kubernetes/base/. Skipping."
+            exit 0
+          }
+          kubeconform \
+            -strict \
+            -ignore-missing-schemas \
+            -kubernetes-version "${{ env.K8S_VERSION }}" \
+            -summary \
+            -output text \
+            infra/kubernetes/base/
+
+      - name: Validate overlay manifests
+        run: |
+          for overlay in infra/kubernetes/overlays/*/; do
+            if [ -d "${overlay}" ]; then
+              OVERLAY_NAME=$(basename "${overlay}")
+              echo "Validating overlay: ${OVERLAY_NAME}"
+              YAML_COUNT=$(find "${overlay}" -name "*.yaml" -o -name "*.yml" 2>/dev/null | wc -l)
+              if [ "${YAML_COUNT}" -eq 0 ]; then
+                echo "  No YAML files in ${overlay}. Skipping."
+                continue
+              fi
+              kubeconform \
+                -strict \
+                -ignore-missing-schemas \
+                -kubernetes-version "${{ env.K8S_VERSION }}" \
+                -summary \
+                -output text \
+                "${overlay}"
+            fi
+          done
+
+  # -------------------------------------------------------------------------
+  # Kustomize build validation
+  # -------------------------------------------------------------------------
+  kustomize:
+    name: Kustomize Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        overlay: [dev, qa, prod]
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: "5.4.3"
+
+      - name: Install kubeconform
+        run: |
+          curl -sL "https://github.com/yannh/kubeconform/releases/download/${{ env.KUBECONFORM_VERSION }}/kubeconform-linux-amd64.tar.gz" \
+            | tar xz -C /usr/local/bin kubeconform
+
+      - name: Build and validate overlay (${{ matrix.overlay }})
+        run: |
+          OVERLAY_DIR="infra/kubernetes/overlays/${{ matrix.overlay }}"
+          if [ ! -f "${OVERLAY_DIR}/kustomization.yaml" ] && [ ! -f "${OVERLAY_DIR}/kustomization.yml" ]; then
+            echo "No kustomization file found in ${OVERLAY_DIR}. Skipping."
+            exit 0
+          fi
+          echo "Building kustomize overlay: ${{ matrix.overlay }}"
+          kustomize build "${OVERLAY_DIR}" > /tmp/rendered-${{ matrix.overlay }}.yaml
+
+          echo "Validating rendered manifests..."
+          kubeconform \
+            -strict \
+            -ignore-missing-schemas \
+            -kubernetes-version "${{ env.K8S_VERSION }}" \
+            -summary \
+            -output text \
+            /tmp/rendered-${{ matrix.overlay }}.yaml

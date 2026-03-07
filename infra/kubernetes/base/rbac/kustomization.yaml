@@ -1,0 +1,10 @@
+# -----------------------------------------------------------------------------
+# Kustomization: rbac (base)
+# Purpose: Aggregates RBAC resources for the Keycloak service account.
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - keycloak-role.yaml
+  - keycloak-rolebinding.yaml

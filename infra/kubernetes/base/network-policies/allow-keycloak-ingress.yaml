@@ -1,0 +1,34 @@
+# -----------------------------------------------------------------------------
+# NetworkPolicy: allow-keycloak-ingress
+# Purpose: Allows inbound HTTP traffic from the NGINX Ingress Controller to
+#          Keycloak pods on port 8080. This is the only external entry point
+#          for user-facing and API traffic.
+#
+# The ingress controller is identified by its standard namespace label
+# (ingress-nginx). Adjust if using a different ingress controller.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-keycloak-ingress
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: network-policy
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        # Allow traffic from the ingress-nginx namespace.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080

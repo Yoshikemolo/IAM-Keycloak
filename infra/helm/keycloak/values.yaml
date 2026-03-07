@@ -1,0 +1,368 @@
+# =========================================================================
+# values.yaml -- Default configuration for the xiam-keycloak Helm chart
+# =========================================================================
+# This file contains the base/default values.  Environment-specific
+# overrides live in values-dev.yaml, values-qa.yaml, and values-prod.yaml.
+#
+# IMPORTANT: Never commit real passwords or tokens in this file.
+# Use Kubernetes Secrets, External Secrets Operator, or GCP Secret Manager
+# for production credentials.
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# General
+# -------------------------------------------------------------------------
+
+# Override the chart name (default: Chart.Name)
+nameOverride: ""
+
+# Override the fully qualified release name
+fullnameOverride: ""
+
+# Number of Keycloak replicas (ignored when autoscaling.enabled is true)
+replicaCount: 2
+
+# Number of old ReplicaSets to retain for rollback
+revisionHistoryLimit: 5
+
+# Seconds to wait for in-flight requests during pod termination
+terminationGracePeriodSeconds: 60
+
+# -------------------------------------------------------------------------
+# Container image
+# -------------------------------------------------------------------------
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.4.2"
+  pullPolicy: IfNotPresent
+
+# Pull secrets for private registries
+imagePullSecrets: []
+# - name: regcred
+
+# -------------------------------------------------------------------------
+# Keycloak configuration
+# -------------------------------------------------------------------------
+keycloak:
+  # -- Hostname visible to end users (required for production)
+  hostname: "iam.xiam.example.com"
+  hostnameAdmin: ""
+  hostnameStrict: "true"
+
+  # -- Reverse proxy header forwarding mode
+  # Options: xforwarded, forwarded
+  proxy: "xforwarded"
+
+  # -- Enable optimized startup (requires a pre-built image)
+  optimized: false
+
+  # -- Enabled Keycloak features (comma-separated)
+  features: "token-exchange,admin-fine-grained-authz,declarative-user-profile"
+
+  # -- Disabled Keycloak features (comma-separated)
+  featuresDisabled: ""
+
+  # -- Log level: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
+  logLevel: "INFO"
+
+  # -- Log output format: default, json
+  logFormat: "default"
+
+  # -- JVM options appended to JAVA_OPTS
+  javaOpts: "-XX:MaxRAMPercentage=70.0"
+
+  # -- XA transactions (disable for Cloud SQL / pgBouncer)
+  transactionXaEnabled: "false"
+
+  # -----------------------------------------------------------------------
+  # Database
+  # -----------------------------------------------------------------------
+  database:
+    # -- Database vendor: postgres, oracle, mysql, mssql, mariadb
+    vendor: "oracle"
+
+    # -- JDBC URL for the Keycloak database
+    url: "jdbc:oracle:thin:@//oracle-db:1521/keycloakdb"
+
+    # -- Database username
+    username: "keycloak"
+
+    # -- Database password (used only when existingSecret is empty)
+    # WARNING: Override this in environment-specific values or use
+    # existingSecret.  Never commit real passwords.
+    password: "changeme"
+
+    # -- Name of a pre-existing Secret containing KC_DB_PASSWORD
+    # When set, the chart will NOT create its own database secret.
+    existingSecret: ""
+
+    # -- Database schema (optional, vendor-dependent)
+    schema: ""
+
+  # -----------------------------------------------------------------------
+  # Admin credentials
+  # -----------------------------------------------------------------------
+  admin:
+    # -- Initial admin username
+    username: "admin"
+
+    # -- Initial admin password (used only when existingSecret is empty)
+    # WARNING: Override this or use existingSecret.
+    password: "changeme"
+
+    # -- Pre-existing Secret with KEYCLOAK_ADMIN and KEYCLOAK_ADMIN_PASSWORD
+    existingSecret: ""
+
+  # -----------------------------------------------------------------------
+  # Distributed cache -- Infinispan with KUBE_PING
+  # -----------------------------------------------------------------------
+  cache:
+    # -- Cache type: ispn (Infinispan), local
+    type: "ispn"
+
+    # -- JGroups stack for pod discovery
+    # "kubernetes" uses KUBE_PING; "tcp" for manual configuration
+    stack: "kubernetes"
+
+    # -- Custom Infinispan config file (mounted via ConfigMap or volume)
+    configFile: ""
+
+    # -- JGroups port for inter-pod cluster communication
+    jgroupsPort: 7800
+
+# -------------------------------------------------------------------------
+# Startup / Liveness / Readiness probes
+# -------------------------------------------------------------------------
+# All probes target the management interface on port 9000.
+
+startupProbe:
+  path: /health/started
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 60
+
+livenessProbe:
+  path: /health/live
+  initialDelaySeconds: 0
+  periodSeconds: 15
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  path: /health/ready
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# -------------------------------------------------------------------------
+# Resource requests and limits
+# -------------------------------------------------------------------------
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+# -------------------------------------------------------------------------
+# Service
+# -------------------------------------------------------------------------
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+
+# -------------------------------------------------------------------------
+# Ingress
+# -------------------------------------------------------------------------
+ingress:
+  enabled: true
+  ingressClassName: nginx
+
+  annotations:
+    # NGINX Ingress Controller
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "KC_ROUTE"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "600"
+    # cert-manager automatic TLS certificate provisioning
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+  hosts:
+    - host: iam.xiam.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+  tls:
+    - hosts:
+        - iam.xiam.example.com
+      secretName: xiam-keycloak-tls
+
+# -------------------------------------------------------------------------
+# Autoscaling (HorizontalPodAutoscaler)
+# -------------------------------------------------------------------------
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  # Stabilisation windows (seconds)
+  scaleUpStabilization: 60
+  scaleDownStabilization: 300
+
+# -------------------------------------------------------------------------
+# Pod Disruption Budget
+# -------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  # maxUnavailable: 1   # Alternative to minAvailable
+
+# -------------------------------------------------------------------------
+# Security contexts
+# -------------------------------------------------------------------------
+
+# Pod-level security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfileType: RuntimeDefault
+
+# Container-level security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+# -------------------------------------------------------------------------
+# ServiceAccount
+# -------------------------------------------------------------------------
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: true
+  annotations:
+    # GKE Workload Identity -- bind this KSA to a GCP service account
+    # Replace with your project's GSA email address
+    iam.gke.io/gcp-service-account: "keycloak-sa@xiam-project.iam.gserviceaccount.com"
+
+# -------------------------------------------------------------------------
+# Namespace
+# -------------------------------------------------------------------------
+namespace:
+  create: false
+  name: ""
+  annotations: {}
+
+# -------------------------------------------------------------------------
+# Metrics and monitoring
+# -------------------------------------------------------------------------
+metrics:
+  enabled: true
+
+  serviceMonitor:
+    enabled: true
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    # Labels to match Prometheus Operator's serviceMonitorSelector
+    # labels:
+    #   release: kube-prometheus-stack
+
+# -------------------------------------------------------------------------
+# Network policies
+# -------------------------------------------------------------------------
+networkPolicy:
+  enabled: true
+  # Namespace where the Ingress controller pods run
+  ingressControllerNamespace: "ingress-nginx"
+  # Namespace where Prometheus / monitoring pods run
+  monitoringNamespace: "monitoring"
+
+# -------------------------------------------------------------------------
+# Persistence (themes, providers)
+# -------------------------------------------------------------------------
+# By default, themes and providers use emptyDir volumes.  Enable PVC-backed
+# persistence when custom themes or SPI JARs must survive pod restarts.
+persistence:
+  themes:
+    enabled: false
+    existingClaim: ""
+    sizeLimit: "256Mi"
+  providers:
+    enabled: false
+    existingClaim: ""
+    sizeLimit: "256Mi"
+  dataSizeLimit: "512Mi"
+
+# -------------------------------------------------------------------------
+# Scheduling
+# -------------------------------------------------------------------------
+
+# Node selector for scheduling Keycloak pods on specific node pools
+nodeSelector: {}
+# cloud.google.com/gke-nodepool: keycloak-pool
+
+# Tolerations for tainted nodes
+tolerations: []
+# - key: "dedicated"
+#   operator: "Equal"
+#   value: "keycloak"
+#   effect: "NoSchedule"
+
+# Affinity rules (overrides the default anti-affinity when set)
+affinity: {}
+
+# Topology spread constraints (overrides the default zone spread when set)
+topologySpreadConstraints: []
+
+# -------------------------------------------------------------------------
+# Extra configuration hooks
+# -------------------------------------------------------------------------
+
+# Additional labels for pods
+podLabels: {}
+
+# Additional annotations for pods
+podAnnotations: {}
+
+# Additional environment variables
+extraEnv: []
+# - name: MY_CUSTOM_VAR
+#   value: "my-value"
+
+# Additional volume mounts
+extraVolumeMounts: []
+
+# Additional volumes
+extraVolumes: []
+
+# Init containers (e.g., to download custom providers/themes)
+initContainers: []
+# - name: download-providers
+#   image: busybox:1.37
+#   command: ["/bin/sh", "-c", "wget -O /providers/my-spi.jar https://..."]
+#   volumeMounts:
+#     - name: providers
+#       mountPath: /providers
+
+# Override the default container command
+command: []
+
+# Override the default container args
+args: []

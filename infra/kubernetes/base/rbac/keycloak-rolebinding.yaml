@@ -1,0 +1,24 @@
+# -----------------------------------------------------------------------------
+# RoleBinding: keycloak
+# Purpose: Binds the keycloak Role to the keycloak ServiceAccount, granting
+#          it the defined permissions within the iam-system namespace.
+# -----------------------------------------------------------------------------
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: keycloak
+subjects:
+  - kind: ServiceAccount
+    name: keycloak
+    namespace: iam-system

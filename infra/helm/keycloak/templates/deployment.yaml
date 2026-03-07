@@ -1,0 +1,319 @@
+{{/*
+==========================================================================
+deployment.yaml -- Main Keycloak Deployment
+==========================================================================
+Deploys Keycloak 26 in "start" mode (production-optimised build).
+Key features:
+  - Full pod and container security contexts (non-root, read-only rootfs)
+  - Liveness, readiness, and startup probes on the management port (9000)
+  - Environment variables sourced from ConfigMap and Secrets
+  - Topology spread constraints and anti-affinity for HA across zones
+  - Volume mounts for themes, providers, and tmp (emptyDir)
+  - Optional init container for custom providers
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xiam-keycloak.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit | default 5 }}
+  selector:
+    matchLabels:
+      {{- include "xiam-keycloak.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "xiam-keycloak.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        # Force redeployment when ConfigMap changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "xiam-keycloak.serviceAccountName" . }}
+      automountServiceAccountToken: true
+
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      # ---------------------------------------------------------------
+      # Pod-level security context
+      # ---------------------------------------------------------------
+      securityContext:
+        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot | default true }}
+        runAsUser: {{ .Values.podSecurityContext.runAsUser | default 1000 }}
+        runAsGroup: {{ .Values.podSecurityContext.runAsGroup | default 1000 }}
+        fsGroup: {{ .Values.podSecurityContext.fsGroup | default 1000 }}
+        seccompProfile:
+          type: {{ .Values.podSecurityContext.seccompProfileType | default "RuntimeDefault" }}
+
+      # ---------------------------------------------------------------
+      # Topology spread -- distribute pods across availability zones
+      # ---------------------------------------------------------------
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml .Values.topologySpreadConstraints | nindent 8 }}
+      {{- else }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "xiam-keycloak.selectorLabels" . | nindent 14 }}
+      {{- end }}
+
+      # ---------------------------------------------------------------
+      # Anti-affinity -- prefer spreading across nodes
+      # ---------------------------------------------------------------
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ include "xiam-keycloak.name" . }}
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}
+                topologyKey: kubernetes.io/hostname
+      {{- end }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      # ---------------------------------------------------------------
+      # Init containers
+      # ---------------------------------------------------------------
+      {{- if .Values.initContainers }}
+      initContainers:
+        {{- toYaml .Values.initContainers | nindent 8 }}
+      {{- end }}
+
+      # ---------------------------------------------------------------
+      # Graceful shutdown -- allow in-flight requests to complete
+      # ---------------------------------------------------------------
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 60 }}
+
+      containers:
+        - name: keycloak
+          image: {{ include "xiam-keycloak.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          {{- if .Values.command }}
+          command:
+            {{- toYaml .Values.command | nindent 12 }}
+          {{- end }}
+
+          args:
+            {{- if .Values.args }}
+            {{- toYaml .Values.args | nindent 12 }}
+            {{- else }}
+            - start
+            {{- if .Values.keycloak.optimized }}
+            - --optimized
+            {{- end }}
+            {{- end }}
+
+          # -------------------------------------------------------------
+          # Container-level security context
+          # -------------------------------------------------------------
+          securityContext:
+            runAsNonRoot: {{ .Values.securityContext.runAsNonRoot | default true }}
+            runAsUser: {{ .Values.securityContext.runAsUser | default 1000 }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem | default true }}
+            allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation | default false }}
+            capabilities:
+              drop:
+                {{- .Values.securityContext.capabilities.drop | default (list "ALL") | toYaml | nindent 16 }}
+
+          # -------------------------------------------------------------
+          # Ports
+          # -------------------------------------------------------------
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: management
+              containerPort: 9000
+              protocol: TCP
+            {{- if .Values.keycloak.cache.jgroupsPort }}
+            - name: jgroups
+              containerPort: {{ .Values.keycloak.cache.jgroupsPort }}
+              protocol: TCP
+            {{- end }}
+
+          # -------------------------------------------------------------
+          # Environment variables from ConfigMap
+          # -------------------------------------------------------------
+          envFrom:
+            - configMapRef:
+                name: {{ include "xiam-keycloak.fullname" . }}-config
+
+          # -------------------------------------------------------------
+          # Environment variables from Secrets and inline
+          # -------------------------------------------------------------
+          env:
+            # Database password
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "xiam-keycloak.dbSecretName" . }}
+                  key: KC_DB_PASSWORD
+
+            # Admin credentials
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "xiam-keycloak.adminSecretName" . }}
+                  key: KEYCLOAK_ADMIN
+
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "xiam-keycloak.adminSecretName" . }}
+                  key: KEYCLOAK_ADMIN_PASSWORD
+
+            # JGroups discovery -- KUBE_PING needs the namespace
+            - name: JAVA_OPTS_APPEND
+              value: >-
+                -Djgroups.dns.query={{ include "xiam-keycloak.fullname" . }}-headless.{{ .Release.Namespace }}.svc.cluster.local
+                {{ .Values.keycloak.javaOpts | default "-XX:MaxRAMPercentage=70.0" }}
+
+            # Pod name for Infinispan node identification
+            - name: KC_HOSTNAME_DEBUG
+              value: "false"
+
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+
+          # -------------------------------------------------------------
+          # Startup probe -- generous to allow initial DB migration
+          # -------------------------------------------------------------
+          startupProbe:
+            httpGet:
+              path: {{ .Values.startupProbe.path | default "/health/started" }}
+              port: management
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold | default 60 }}
+            successThreshold: 1
+
+          # -------------------------------------------------------------
+          # Liveness probe -- restart if permanently unhealthy
+          # -------------------------------------------------------------
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path | default "/health/live" }}
+              port: management
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | default 0 }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds | default 15 }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold | default 3 }}
+            successThreshold: 1
+
+          # -------------------------------------------------------------
+          # Readiness probe -- remove from service if temporarily unable
+          # to serve traffic
+          # -------------------------------------------------------------
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path | default "/health/ready" }}
+              port: management
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | default 0 }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds | default 3 }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold | default 3 }}
+            successThreshold: 1
+
+          # -------------------------------------------------------------
+          # Resource limits and requests
+          # -------------------------------------------------------------
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          # -------------------------------------------------------------
+          # Volume mounts
+          # -------------------------------------------------------------
+          volumeMounts:
+            # Keycloak needs a writable /tmp for temporary files
+            - name: tmp
+              mountPath: /tmp
+            # Custom themes directory
+            - name: themes
+              mountPath: /opt/keycloak/themes
+            # Custom providers (SPI JARs)
+            - name: providers
+              mountPath: /opt/keycloak/providers
+            # Keycloak data directory (for embedded H2 in dev, caches, etc.)
+            - name: data
+              mountPath: /opt/keycloak/data
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+
+      # ---------------------------------------------------------------
+      # Volumes
+      # ---------------------------------------------------------------
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
+        - name: themes
+          {{- if .Values.persistence.themes.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.themes.existingClaim | default (printf "%s-themes" (include "xiam-keycloak.fullname" .)) }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: {{ .Values.persistence.themes.sizeLimit | default "256Mi" }}
+          {{- end }}
+        - name: providers
+          {{- if .Values.persistence.providers.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.providers.existingClaim | default (printf "%s-providers" (include "xiam-keycloak.fullname" .)) }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: {{ .Values.persistence.providers.sizeLimit | default "256Mi" }}
+          {{- end }}
+        - name: data
+          emptyDir:
+            sizeLimit: {{ .Values.persistence.dataSizeLimit | default "512Mi" }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

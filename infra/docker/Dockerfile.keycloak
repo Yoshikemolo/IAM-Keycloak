@@ -1,0 +1,111 @@
+###############################################################################
+# Dockerfile.keycloak
+# Multi-stage build for Keycloak 26.4.2 with custom providers and themes.
+#
+# Stage 1 (builder): Compiles custom SPI providers using Maven.
+# Stage 2 (production): Minimal Keycloak image with providers, themes,
+#                        and realm configurations baked in.
+#
+# Build:
+#   docker build -f Dockerfile.keycloak -t iam-keycloak:latest \
+#       --build-arg KC_DB=postgres ../..
+#
+# Run:
+#   docker run -p 8080:8080 -p 9000:9000 \
+#       -e KC_DB_URL=jdbc:postgresql://db:5432/keycloak \
+#       -e KC_DB_USERNAME=keycloak \
+#       -e KC_DB_PASSWORD=changeme \
+#       iam-keycloak:latest
+###############################################################################
+
+# ---------------------------------------------------------------------------
+# Stage 1: Builder -- compile custom SPI providers
+# ---------------------------------------------------------------------------
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+
+LABEL stage="builder"
+
+WORKDIR /build
+
+# Copy provider source code and build
+COPY keycloak/providers/ ./providers/
+
+# Build each provider module if a pom.xml exists at the root
+RUN if [ -f providers/pom.xml ]; then \
+        cd providers && \
+        mvn clean package -DskipTests -B -q && \
+        mkdir -p /build/output && \
+        find . -name "*.jar" -path "*/target/*" \
+            ! -name "*-sources.jar" \
+            ! -name "*-javadoc.jar" \
+            -exec cp {} /build/output/ \; ; \
+    else \
+        mkdir -p /build/output && \
+        find providers/ -name "*.jar" -exec cp {} /build/output/ \; 2>/dev/null || true; \
+    fi
+
+# ---------------------------------------------------------------------------
+# Stage 2: Production -- minimal Keycloak with providers, themes, config
+# ---------------------------------------------------------------------------
+FROM quay.io/keycloak/keycloak:26.4.2 AS production
+
+# -- OCI image labels -------------------------------------------------------
+LABEL org.opencontainers.image.title="X-IAM Keycloak"
+LABEL org.opencontainers.image.description="Enterprise IAM platform based on Keycloak 26.4.2 with custom providers and themes"
+LABEL org.opencontainers.image.vendor="Ximplicity Software Solutions S.L."
+LABEL org.opencontainers.image.version="26.4.2"
+LABEL org.opencontainers.image.source="https://github.com/ximplicity/IAM-Keycloak"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+LABEL org.opencontainers.image.base.name="quay.io/keycloak/keycloak:26.4.2"
+
+# -- Build arguments --------------------------------------------------------
+ARG KC_DB=postgres
+ARG KC_HEALTH_ENABLED=true
+ARG KC_METRICS_ENABLED=true
+ARG KC_FEATURES=token-exchange,admin-fine-grained-authz,declarative-user-profile
+
+# -- Environment defaults (overridable at runtime) --------------------------
+ENV KC_DB=${KC_DB} \
+    KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED} \
+    KC_METRICS_ENABLED=${KC_METRICS_ENABLED} \
+    KC_FEATURES=${KC_FEATURES} \
+    KC_HTTP_RELATIVE_PATH="/" \
+    KC_PROXY_HEADERS=xforwarded \
+    KC_HOSTNAME_STRICT=false \
+    KC_LOG_LEVEL=info \
+    KC_LOG_CONSOLE_OUTPUT=json
+
+# -- Copy custom providers from builder stage --------------------------------
+COPY --from=builder /build/output/ /opt/keycloak/providers/
+
+# -- Copy themes -------------------------------------------------------------
+COPY keycloak/themes/ /opt/keycloak/themes/
+
+# -- Copy realm configuration files ------------------------------------------
+COPY keycloak/realms/ /opt/keycloak/data/import/
+
+# -- Copy Keycloak configuration overlay (keycloak.conf, quarkus.properties) -
+COPY keycloak/config/ /opt/keycloak/conf/
+
+# -- Build the optimized Keycloak distribution -------------------------------
+# This pre-builds the server so startup is faster in production.
+RUN /opt/keycloak/bin/kc.sh build
+
+# -- Switch to non-root user -------------------------------------------------
+USER 1000
+
+# -- Expose ports ------------------------------------------------------------
+# 8080: HTTP (behind reverse proxy / ingress)
+# 9000: Management interface (health, metrics)
+EXPOSE 8080 9000
+
+# -- Health check ------------------------------------------------------------
+# Uses the management health endpoint on port 9000.
+# The readiness probe waits 30s to allow Keycloak startup, then checks every
+# 10 seconds with a 5-second timeout and 3 consecutive failures threshold.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+    CMD exec curl --fail --silent http://localhost:9000/health/ready || exit 1
+
+# -- Entrypoint --------------------------------------------------------------
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start", "--optimized"]

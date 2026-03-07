@@ -1,0 +1,27 @@
+{{/*
+==========================================================================
+pdb.yaml -- PodDisruptionBudget for Keycloak
+==========================================================================
+Ensures that a minimum number of Keycloak pods remain available during
+voluntary disruptions such as node drains, cluster upgrades, or rolling
+deployments.
+*/}}
+{{- if .Values.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "xiam-keycloak.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "xiam-keycloak.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  {{- if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "xiam-keycloak.selectorLabels" . | nindent 6 }}
+{{- end }}

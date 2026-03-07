@@ -1,0 +1,35 @@
+# -----------------------------------------------------------------------------
+# ResourceQuota: iam-system-quota
+# Purpose: Limits the total amount of compute resources and object counts
+#          that can be consumed within the iam-system namespace. This prevents
+#          runaway resource consumption and provides a safety net against
+#          misconfigurations or compromised workloads.
+#
+# Values are set as reasonable defaults for the base configuration and are
+# overridden per environment in the Kustomize overlays.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: iam-system-quota
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: resource-quota
+    app.kubernetes.io/component: security
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  hard:
+    # -- Compute resource limits --
+    requests.cpu: "8"
+    requests.memory: "16Gi"
+    limits.cpu: "16"
+    limits.memory: "32Gi"
+
+    # -- Object count limits --
+    pods: "20"
+    services: "10"
+    configmaps: "20"
+    secrets: "20"
+    persistentvolumeclaims: "10"
+    replicationcontrollers: "10"

@@ -1,0 +1,38 @@
+# -----------------------------------------------------------------------------
+# Kustomization: qa overlay
+# Purpose: Applies QA-specific patches to the base manifests. Provides a
+#          near-production configuration for integration testing, performance
+#          testing, and pre-release validation.
+#
+# Usage:
+#   kubectl apply -k infra/kubernetes/overlays/qa/
+#   kustomize build infra/kubernetes/overlays/qa/ | kubectl apply -f -
+# -----------------------------------------------------------------------------
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# -- Base reference --
+resources:
+  - ../../base
+
+# -- Namespace --
+namespace: iam-system
+
+# -- Common labels for qa environment --
+commonLabels:
+  app.kubernetes.io/instance: keycloak-qa
+  environment: qa
+
+# -- Common annotations --
+commonAnnotations:
+  environment: qa
+  team: iam-platform
+
+# -- Patches --
+patches:
+  - path: patches/keycloak-replicas.yaml
+  - path: patches/keycloak-resources.yaml
+  - path: patches/keycloak-env.yaml
+  - path: patches/hpa-scale.yaml
+  # ConfigMap override.
+  - path: configmap-env.yaml

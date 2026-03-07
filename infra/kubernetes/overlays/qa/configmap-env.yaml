@@ -1,0 +1,50 @@
+# -----------------------------------------------------------------------------
+# ConfigMap: keycloak-config (qa override)
+# Purpose: QA-specific configuration values for Keycloak. Mirrors production
+#          settings where possible to catch configuration issues early.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-config
+  namespace: iam-system
+data:
+  # -- Database --
+  KC_DB: postgres
+  KC_DB_URL_HOST: keycloak-db.iam-system.svc.cluster.local
+  KC_DB_URL_PORT: "5432"
+  KC_DB_URL_DATABASE: keycloak_qa
+  KC_DB_SCHEMA: public
+
+  # -- Hostname --
+  KC_HOSTNAME: iam-qa.example.com
+  KC_HOSTNAME_STRICT: "true"
+  KC_HOSTNAME_STRICT_HTTPS: "true"
+
+  # -- HTTP --
+  KC_HTTP_ENABLED: "true"
+  KC_HTTP_PORT: "8080"
+  KC_PROXY_HEADERS: xforwarded
+
+  # -- Health and metrics --
+  KC_HEALTH_ENABLED: "true"
+  KC_METRICS_ENABLED: "true"
+  KC_HTTP_MANAGEMENT_PORT: "9000"
+
+  # -- Cache --
+  KC_CACHE: ispn
+  KC_CACHE_STACK: kubernetes
+  JAVA_OPTS_APPEND: >-
+    -Djgroups.dns.query=keycloak-jgroups.iam-system.svc.cluster.local
+    -Djgroups.kubernetes.namespace=iam-system
+    -Djgroups.kubernetes.labels=app.kubernetes.io/name=keycloak
+
+  # -- Logging --
+  KC_LOG_LEVEL: INFO
+  KC_LOG_CONSOLE_OUTPUT: json
+
+  # -- Features --
+  KC_FEATURES: token-exchange,admin-fine-grained-authz
+
+  # -- Transactions --
+  KC_TRANSACTION_XA_ENABLED: "false"

@@ -1,0 +1,134 @@
+###############################################################################
+# prometheus.yml
+# Prometheus scrape configuration for the IAM platform.
+#
+# Defines scrape targets for Keycloak metrics, node-exporter, and
+# kube-state-metrics. Includes relabeling rules and scrape intervals
+# tuned for production monitoring.
+###############################################################################
+
+global:
+  # Default scrape interval for all jobs unless overridden.
+  scrape_interval: 15s
+
+  # How frequently to evaluate alerting and recording rules.
+  evaluation_interval: 15s
+
+  # Timeout for individual scrape requests.
+  scrape_timeout: 10s
+
+  # External labels attached to all time series and alerts when
+  # communicating with external systems (federation, Alertmanager).
+  external_labels:
+    cluster: "iam-gke"
+    environment: "dev"
+
+# ---------------------------------------------------------------------------
+# Rule files -- alerting and recording rules
+# ---------------------------------------------------------------------------
+rule_files:
+  - "alert-rules.yml"
+  - "recording-rules.yml"
+
+# ---------------------------------------------------------------------------
+# Alertmanager configuration
+# ---------------------------------------------------------------------------
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"
+      timeout: 10s
+
+# ---------------------------------------------------------------------------
+# Scrape configurations
+# ---------------------------------------------------------------------------
+scrape_configs:
+
+  # -------------------------------------------------------------------------
+  # Prometheus self-monitoring
+  # -------------------------------------------------------------------------
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+          - "localhost:9090"
+        labels:
+          component: "prometheus"
+
+  # -------------------------------------------------------------------------
+  # Keycloak metrics
+  # Keycloak 26 exposes Micrometer/Prometheus metrics on the management
+  # port (9000) at /metrics. Includes JVM, HTTP, session, and auth metrics.
+  # -------------------------------------------------------------------------
+  - job_name: "keycloak"
+    metrics_path: /metrics
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - "keycloak:9000"
+        labels:
+          component: "keycloak"
+          service: "iam"
+
+    # Relabel instance to a human-readable name
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: "([^:]+):\\d+"
+        replacement: "${1}"
+
+  # -------------------------------------------------------------------------
+  # Keycloak (Kubernetes service discovery)
+  # Used when running on GKE; discovers Keycloak pods via annotations.
+  # -------------------------------------------------------------------------
+  # - job_name: "keycloak-k8s"
+  #   kubernetes_sd_configs:
+  #     - role: pod
+  #       namespaces:
+  #         names:
+  #           - iam
+  #   relabel_configs:
+  #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+  #       action: keep
+  #       regex: "true"
+  #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+  #       action: replace
+  #       target_label: __address__
+  #       regex: (.+)
+  #       replacement: "${1}:9000"
+  #     - source_labels: [__meta_kubernetes_pod_name]
+  #       target_label: pod
+  #     - source_labels: [__meta_kubernetes_namespace]
+  #       target_label: namespace
+
+  # -------------------------------------------------------------------------
+  # Node Exporter -- host-level metrics (CPU, memory, disk, network)
+  # -------------------------------------------------------------------------
+  - job_name: "node-exporter"
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
+        labels:
+          component: "node"
+
+  # -------------------------------------------------------------------------
+  # kube-state-metrics -- Kubernetes object state
+  # Provides metrics about Deployments, Pods, Services, etc.
+  # -------------------------------------------------------------------------
+  - job_name: "kube-state-metrics"
+    static_configs:
+      - targets:
+          - "kube-state-metrics:8080"
+        labels:
+          component: "kubernetes"
+
+  # -------------------------------------------------------------------------
+  # PostgreSQL Exporter -- database metrics
+  # -------------------------------------------------------------------------
+  - job_name: "postgresql"
+    static_configs:
+      - targets:
+          - "postgres-exporter:9187"
+        labels:
+          component: "database"
+          service: "postgresql"

@@ -1,0 +1,229 @@
+# -----------------------------------------------------------------------------
+# Deployment: keycloak
+# Purpose: Runs the Keycloak identity and access management server in
+#          production-optimized mode. Uses the official Quay image with the
+#          "start" command (requires a prior optimized build via Dockerfile).
+#
+# Health probes target the dedicated management port 9000 which Keycloak
+# exposes separately from the main HTTP port 8080.
+#
+# Anti-affinity spreads replicas across availability zones for resilience.
+# Tolerations allow scheduling on dedicated node pools tainted for Keycloak.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: iam-system
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/instance: keycloak-iam
+    app.kubernetes.io/version: "26.4.2"
+    app.kubernetes.io/component: identity-provider
+    app.kubernetes.io/part-of: iam-platform
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  # Default replica count -- overridden per environment via overlay patches.
+  replicas: 3
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: keycloak
+      app.kubernetes.io/instance: keycloak-iam
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: keycloak
+        app.kubernetes.io/instance: keycloak-iam
+        app.kubernetes.io/version: "26.4.2"
+        app.kubernetes.io/component: identity-provider
+        app.kubernetes.io/part-of: iam-platform
+        app.kubernetes.io/managed-by: kustomize
+      annotations:
+        # Force pod restart when the ConfigMap changes.
+        checksum/config: "PLACEHOLDER"
+    spec:
+      # -- Service account for RBAC and Workload Identity --
+      serviceAccountName: keycloak
+      automountServiceAccountToken: true
+
+      # -- Security context at pod level --
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # -- Graceful shutdown --
+      terminationGracePeriodSeconds: 60
+
+      # -- Anti-affinity: prefer spreading across zones --
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - keycloak
+                topologyKey: topology.kubernetes.io/zone
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - keycloak
+                topologyKey: kubernetes.io/hostname
+
+      # -- Tolerations for dedicated keycloak node pool --
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: keycloak
+          effect: NoSchedule
+
+      # -- Node selector (optional, enable if using dedicated node pool) --
+      # nodeSelector:
+      #   workload: keycloak
+
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:26.4.2
+          imagePullPolicy: IfNotPresent
+
+          # Start in production mode. The image must have been built with
+          # "build" step already applied (optimized startup).
+          command:
+            - /opt/keycloak/bin/kc.sh
+          args:
+            - start
+
+          # -- Ports --
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: management
+              containerPort: 9000
+              protocol: TCP
+            - name: jgroups
+              containerPort: 7800
+              protocol: TCP
+
+          # -- Environment variables from ConfigMap --
+          envFrom:
+            - configMapRef:
+                name: keycloak-config
+
+          # -- Environment variables from Secrets --
+          env:
+            # Database credentials -- referenced from an externally managed
+            # Kubernetes Secret (created via sealed-secrets, external-secrets,
+            # or CI/CD pipeline).
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-db-credentials
+                  key: username
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-db-credentials
+                  key: password
+            # Keycloak admin bootstrap credentials (initial setup only).
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: username
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-credentials
+                  key: password
+            # Java memory settings -- use container-aware defaults.
+            - name: JAVA_OPTS_KC_HEAP
+              value: "-XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=70.0"
+
+          # -- Resource requests and limits (overridden per environment) --
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+
+          # -- Security context at container level --
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+          # -- Startup probe --
+          # Generous timeout for initial startup (optimized build + DB migration).
+          # failureThreshold * periodSeconds = 150s max startup time.
+          startupProbe:
+            httpGet:
+              path: /health/started
+              port: management
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+            timeoutSeconds: 3
+
+          # -- Readiness probe --
+          # Keycloak is ready to accept traffic.
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 3
+
+          # -- Liveness probe --
+          # Restart the container if it becomes unresponsive.
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: management
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            failureThreshold: 3
+            timeoutSeconds: 3
+
+          # -- Volume mounts --
+          volumeMounts:
+            # Keycloak needs a writable /tmp directory for temporary files.
+            - name: tmp
+              mountPath: /tmp
+            # Writable directory for Keycloak data (themes cache, etc.).
+            - name: keycloak-data
+              mountPath: /opt/keycloak/data
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 128Mi
+        - name: keycloak-data
+          emptyDir:
+            sizeLimit: 256Mi
