@@ -1,0 +1,42 @@
+<header class="app-header">
+  <!-- Left: Logo + Title -->
+  <a href="/" class="app-header-left" style="text-decoration: none;">
+    <img
+      id="header-logo"
+      src="/branding/<%= theme === 'light' ? 'light' : 'dark' %>-color-logo-with-claim.svg"
+      alt="Ximplicity"
+      class="app-header-logo"
+    />
+    <span class="app-header-title"><%= t('app.title') %></span>
+  </a>
+
+  <!-- Right: Controls -->
+  <div class="app-header-right">
+    <!-- Theme toggle -->
+    <button
+      id="theme-toggle"
+      class="theme-toggle"
+      type="button"
+      title="<%= t('header.toggleTheme') %>"
+      aria-label="<%= t('header.toggleTheme') %>"
+    ><%= theme === 'dark' ? '\u2600\uFE0F' : '\uD83C\uDF19' %></button>
+
+    <!-- Language selector -->
+    <select
+      id="language-selector"
+      class="language-selector"
+      title="<%= t('header.selectLanguage') %>"
+      aria-label="<%= t('header.selectLanguage') %>"
+    >
+      <option value="en" <%= locale === 'en' ? 'selected' : '' %>>EN</option>
+      <option value="es" <%= locale === 'es' ? 'selected' : '' %>>ES</option>
+    </select>
+
+    <% if (user) { %>
+      <span class="header-user-name"><%= user.username || user.name || user.email %></span>
+      <a href="/auth/logout" class="btn btn-sm"><%= t('header.logout') %></a>
+    <% } else { %>
+      <a href="/auth/login" class="btn btn-sm btn-primary"><%= t('header.login') %></a>
+    <% } %>
+  </div>
+</header>

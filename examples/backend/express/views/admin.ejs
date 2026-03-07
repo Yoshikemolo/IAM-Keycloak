@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> - <%= t('app.title') %></title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/header') %>
+
+    <main class="app-main">
+      <div class="page">
+        <h1 class="page-title"><%= t('admin.title') %></h1>
+        <p class="page-description"><%= t('admin.welcome', { name: displayName }) %></p>
+
+        <div class="card">
+          <h2 class="card-title"><%= t('admin.panelTitle') %></h2>
+          <p class="page-description"><%= t('admin.panelDescription') %></p>
+
+          <ul class="admin-actions">
+            <li><%= t('admin.actionUsers') %></li>
+            <li><%= t('admin.actionRoles') %></li>
+            <li><%= t('admin.actionSettings') %></li>
+          </ul>
+        </div>
+
+        <div class="card" style="margin-top: var(--spacing-lg);">
+          <p class="text-muted"><%= t('admin.onlyAdmins') %></p>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </div>
+</body>
+</html>

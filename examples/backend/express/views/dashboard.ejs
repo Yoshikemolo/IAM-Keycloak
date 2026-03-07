@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> - <%= t('app.title') %></title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/css/global.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <%- include('partials/header') %>
+
+    <main class="app-main">
+      <div class="page">
+        <h1 class="page-title"><%= t('dashboard.title') %></h1>
+        <p class="page-description"><%= t('dashboard.welcome', { name: displayName }) %></p>
+
+        <!-- User Information Card -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <h2 class="card-title"><%= t('dashboard.userInfo') %></h2>
+          <dl class="info-list">
+            <dt><%= t('dashboard.name') %></dt>
+            <dd><%= user.name || t('dashboard.notProvided') %></dd>
+
+            <dt><%= t('dashboard.email') %></dt>
+            <dd><%= user.email || t('dashboard.notProvided') %></dd>
+          </dl>
+        </div>
+
+        <!-- Roles Card -->
+        <div class="card" style="margin-bottom: var(--spacing-lg);">
+          <h2 class="card-title"><%= t('dashboard.roles') %></h2>
+          <% if (user.realmRoles.length > 0 || user.clientRoles.length > 0) { %>
+            <div class="badge-group">
+              <% user.realmRoles.forEach(function(role) { %>
+                <span class="badge badge-realm"><%= role %></span>
+              <% }); %>
+              <% user.clientRoles.forEach(function(role) { %>
+                <span class="badge badge-client"><%= role %></span>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="text-muted"><%= t('dashboard.noRoles') %></p>
+          <% } %>
+        </div>
+
+        <!-- Token Info Card -->
+        <div class="card">
+          <h2 class="card-title"><%= t('dashboard.tokenInfo') %></h2>
+
+          <div style="margin-bottom: var(--spacing-md);">
+            <h3 class="section-heading"><%= t('dashboard.tokenExpiry') %></h3>
+            <% if (expiresIn > 0) { %>
+              <span class="token-countdown"><%= t('dashboard.expiresIn', { time: Math.floor(expiresIn / 60) + 'm ' + (expiresIn % 60) + 's' }) %></span>
+            <% } else { %>
+              <span class="text-muted"><%= t('dashboard.expired') %></span>
+            <% } %>
+          </div>
+
+          <div>
+            <h3 class="section-heading"><%= t('dashboard.accessToken') %></h3>
+            <code class="token-preview"><%= preview %></code>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </div>
+</body>
+</html>
