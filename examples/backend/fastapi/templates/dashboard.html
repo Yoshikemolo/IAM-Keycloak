@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('dashboard.title') }} - {{ t('app.title') }}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">{{ t('dashboard.title') }}</h1>
+  <p class="page-subtitle">{{ t('dashboard.welcome', name=user.display_name) }}</p>
+
+  {# User Information Card #}
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h2 class="card-title">{{ t('dashboard.userInfo') }}</h2>
+    <dl class="info-list">
+      <dt>{{ t('dashboard.name') }}</dt>
+      <dd>{{ user.name or user.preferred_username or t('dashboard.notProvided') }}</dd>
+
+      <dt>{{ t('dashboard.email') }}</dt>
+      <dd>{{ user.email or t('dashboard.notProvided') }}</dd>
+    </dl>
+  </div>
+
+  {# Roles Card #}
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <h2 class="card-title">{{ t('dashboard.roles') }}</h2>
+
+    {% if user.realm_roles or user.client_roles %}
+      <div class="badge-group">
+        {% for role in user.realm_roles %}
+          <span class="badge badge-realm">{{ role }}</span>
+        {% endfor %}
+        {% for role in user.client_roles %}
+          <span class="badge badge-client">{{ role }}</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">{{ t('dashboard.noRoles') }}</p>
+    {% endif %}
+  </div>
+
+  {# Token Preview Card #}
+  <div class="card">
+    <h2 class="card-title">{{ t('dashboard.tokenInfo') }}</h2>
+    <h3 class="section-heading">{{ t('dashboard.accessToken') }}</h3>
+    <code class="token-preview">{{ token_preview }}</code>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('home.title') }} - {{ t('app.title') }}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">{{ t('home.title') }}</h1>
+  <p class="page-subtitle">{{ t('home.subtitle') }}</p>
+  <p class="page-description">{{ t('home.description') }}</p>
+
+  {% if user %}
+    {# Authenticated state #}
+    <div class="home-authenticated">
+      <p class="home-greeting">{{ t('home.greeting', name=user.display_name) }}</p>
+      <a href="/dashboard" class="btn btn-primary">{{ t('home.goToDashboard') }}</a>
+    </div>
+  {% else %}
+    {# Unauthenticated state #}
+    <div class="home-unauthenticated">
+      <p class="home-cta-text">{{ t('home.ctaText') }}</p>
+      <a href="/auth/login" class="btn btn-primary">{{ t('home.signIn') }}</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

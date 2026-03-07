@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t('profile.title') }} - {{ t('app.title') }}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <h1 class="page-title">{{ t('profile.title') }}</h1>
+  <p class="page-description">{{ t('profile.description') }}</p>
+
+  {# User Summary Card #}
+  <div class="card" style="margin-bottom: var(--spacing-lg);">
+    <div class="user-info-card">
+      <div class="user-name">{{ user.name or user.preferred_username }}</div>
+      <div class="user-email">{{ user.email or t('dashboard.notProvided') }}</div>
+    </div>
+
+    {% if user.realm_roles or user.client_roles %}
+      <div style="margin-top: var(--spacing-md);">
+        <h3 class="section-heading">{{ t('profile.roles') }}</h3>
+        <div class="badge-group">
+          {% for role in user.realm_roles %}
+            <span class="badge badge-realm">{{ role }}</span>
+          {% endfor %}
+          {% for role in user.client_roles %}
+            <span class="badge badge-client">{{ role }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {# Token Claims Card #}
+  <div class="card">
+    <h2 class="card-title">{{ t('profile.claimsTitle') }}</h2>
+    <pre class="claim-json">{{ claims_json }}</pre>
+  </div>
+</div>
+{% endblock %}
