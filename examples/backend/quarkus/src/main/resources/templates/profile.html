@@ -1,0 +1,64 @@
+{#include base}
+
+{#title}{messages.get('profile.title') ?: 'Profile'} - {messages.get('app.title') ?: 'IAM Quarkus Example'}{/title}
+
+{#content}
+<div class="page">
+  <h1 class="page-title">{messages.get('profile.title') ?: 'Profile'}</h1>
+  <p class="page-description">{messages.get('profile.description') ?: 'Full set of claims from your OIDC identity token.'}</p>
+
+  <div class="card">
+    <h2 class="card-title">{messages.get('profile.claimsTitle') ?: 'Token Claims'}</h2>
+
+    <div class="info-list-vertical">
+      <!-- Subject -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.subject') ?: 'Subject'}</div>
+        <div class="info-value">{subject}</div>
+      </div>
+
+      <!-- Issuer -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.issuer') ?: 'Issuer'}</div>
+        <div class="info-value">{issuer}</div>
+      </div>
+
+      <!-- Full Name -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.name') ?: 'Full Name'}</div>
+        <div class="info-value">{fullName}</div>
+      </div>
+
+      <!-- Email -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.email') ?: 'Email'}</div>
+        <div class="info-value">{email}</div>
+      </div>
+
+      <!-- Roles -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.roles') ?: 'Assigned Roles'}</div>
+        <div class="info-value">
+          {#if roles.isEmpty()}
+          <span class="text-muted">None</span>
+          {#else}
+          <div class="badge-group">
+            {#for role in roles}
+            <span class="badge {#if role == 'admin'}badge-admin{#else}badge-user{/if}">{role}</span>
+            {/for}
+          </div>
+          {/if}
+        </div>
+      </div>
+
+      <!-- Token Expiry -->
+      <div class="info-list-item">
+        <div class="info-label">{messages.get('profile.tokenExpiry') ?: 'Token Expires'}</div>
+        <div class="info-value">{expiryFormatted}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{/content}
+
+{/include}

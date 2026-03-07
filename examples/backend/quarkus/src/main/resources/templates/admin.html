@@ -1,0 +1,27 @@
+{#include base}
+
+{#title}{messages.get('admin.title') ?: 'Administration'} - {messages.get('app.title') ?: 'IAM Quarkus Example'}{/title}
+
+{#content}
+<div class="page">
+  <h1 class="page-title">{messages.get('admin.title') ?: 'Administration'}</h1>
+  <p class="page-description">{messages.get('admin.welcome').replace('\{0\}', displayName)}</p>
+
+  <div class="card">
+    <h2 class="card-title">{messages.get('admin.panelTitle') ?: 'Admin Panel'}</h2>
+    <p class="page-description">{messages.get('admin.panelDescription') ?: 'This section is only visible to users with the admin role.'}</p>
+
+    <ul class="admin-actions">
+      <li>{messages.get('admin.actionUsers') ?: 'Manage users'}</li>
+      <li>{messages.get('admin.actionRoles') ?: 'Manage roles'}</li>
+      <li>{messages.get('admin.actionSettings') ?: 'System settings'}</li>
+    </ul>
+  </div>
+
+  <p class="text-muted" style="margin-top: var(--spacing-md);">
+    {messages.get('admin.onlyAdmins') ?: 'Only administrators can view and manage this page.'}
+  </p>
+</div>
+{/content}
+
+{/include}

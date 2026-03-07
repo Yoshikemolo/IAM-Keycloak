@@ -1,0 +1,25 @@
+{#include base}
+
+{#title}{messages.get('home.title') ?: 'Home'} - {messages.get('app.title') ?: 'IAM Quarkus Example'}{/title}
+
+{#content}
+<div class="page">
+  <h1 class="page-title">{messages.get('home.title') ?: 'Identity & Access Management Demo'}</h1>
+  <p class="page-subtitle">{messages.get('home.subtitle') ?: 'Secure authentication with Keycloak'}</p>
+  <p class="page-description">{messages.get('home.description') ?: 'This application demonstrates OpenID Connect authentication with Keycloak using Quarkus 3.17 and quarkus-oidc.'}</p>
+
+  {#if authenticated}
+  <div class="home-authenticated">
+    <p class="home-greeting">{messages.get('home.greeting').replace('\{0\}', userName)}</p>
+    <a href="/dashboard" class="btn btn-primary">{messages.get('home.goToDashboard') ?: 'Go to Dashboard'}</a>
+  </div>
+  {#else}
+  <div class="home-unauthenticated">
+    <p class="home-cta-text">{messages.get('home.ctaText') ?: 'Sign in with Keycloak to explore the protected areas of this demo.'}</p>
+    <a href="/dashboard" class="btn btn-primary">{messages.get('home.signIn') ?: 'Sign In'}</a>
+  </div>
+  {/if}
+</div>
+{/content}
+
+{/include}
