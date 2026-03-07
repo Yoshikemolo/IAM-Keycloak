@@ -1,0 +1,184 @@
+# =============================================================================
+# IAM Platform - Base Docker Compose
+# =============================================================================
+# Provides the core services required to run the IAM platform locally:
+#   - PostgreSQL 16 (Keycloak database)
+#   - Keycloak 26.4.2 (Identity Provider)
+#   - Prometheus (metrics collection)
+#   - Grafana (dashboards)
+#
+# Usage:
+#   docker compose -f docker-compose.base.yml --env-file .env.dev up -d
+#
+# All services include health checks, explicit container names, resource
+# limits, and non-root execution where supported by the base image.
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL - Keycloak persistent storage
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-16.6-alpine}
+    container_name: iam-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-keycloak}
+      POSTGRES_USER: ${POSTGRES_USER:-keycloak}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-keycloak_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-keycloak} -d ${POSTGRES_DB:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    networks:
+      - iam-network
+
+  # ---------------------------------------------------------------------------
+  # Keycloak - Identity and Access Management
+  # ---------------------------------------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.4.2}
+    container_name: iam-keycloak
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_DATABASE:-keycloak}
+      KC_DB_USERNAME: ${DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${DB_PASSWORD:-keycloak_dev_password}
+      KC_DB_SCHEMA: ${DB_SCHEMA:-public}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_HOSTNAME_STRICT: ${KEYCLOAK_HOSTNAME_STRICT:-false}
+      KC_PROXY_HEADERS: ${KEYCLOAK_PROXY_HEADERS:-xforwarded}
+      KC_HTTP_ENABLED: ${KEYCLOAK_HTTP_ENABLED:-true}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_FEATURES: ${KEYCLOAK_FEATURES:-token-exchange,admin-fine-grained-authz,declarative-user-profile}
+      KC_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "${KEYCLOAK_HTTP_PORT:-8080}:8080"
+      - "${KEYCLOAK_MANAGEMENT_PORT:-9000}:9000"
+    volumes:
+      - ../keycloak/realms:/opt/keycloak/data/import:ro
+      - ../keycloak/themes/custom-theme:/opt/keycloak/themes/custom-theme:ro
+      - ../keycloak/providers/target:/opt/keycloak/providers:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && timeout 5 cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: "1.0"
+    networks:
+      - iam-network
+
+  # ---------------------------------------------------------------------------
+  # Prometheus - Metrics collection and alerting
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v${PROMETHEUS_VERSION:-2.55.1}
+    container_name: iam-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../infra/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../infra/config/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+      - ../infra/config/prometheus/recording-rules.yml:/etc/prometheus/recording-rules.yml:ro
+      - prometheus-data:/prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    networks:
+      - iam-network
+
+  # ---------------------------------------------------------------------------
+  # Grafana - Dashboards and visualization
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:${GRAFANA_VERSION:-11.4.0}
+    container_name: iam-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "http://localhost:3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../infra/config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../infra/config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.25"
+    networks:
+      - iam-network
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  postgres-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  iam-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.28.0.0/16}
