@@ -29,6 +29,11 @@
                 "output": "/assets/branding"
               },
               {
+                "glob": "**/*",
+                "input": "../../../assets/favicon",
+                "output": "/assets/favicon"
+              },
+              {
                 "glob": "**/*.woff2",
                 "input": "../../../assets/fonts",
                 "output": "/assets/fonts"

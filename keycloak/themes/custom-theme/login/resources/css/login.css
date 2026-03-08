@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Custom Login Theme - IAM Platform
+   Overrides the default Keycloak v2 login theme with tenant-specific branding.
+   ========================================================================== */
+
+:root {
+    /* Brand colors */
+    --brand-primary: #1a56db;
+    --brand-primary-hover: #1648b8;
+    --brand-primary-active: #123d9e;
+    --brand-secondary: #6b7280;
+    --brand-accent: #10b981;
+
+    /* Neutral palette */
+    --color-bg: #f9fafb;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
+    --color-error: #dc2626;
+    --color-error-bg: #fef2f2;
+    --color-success: #16a34a;
+    --color-success-bg: #f0fdf4;
+    --color-warning: #d97706;
+    --color-warning-bg: #fffbeb;
+
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* Borders */
+    --border-radius-sm: 0.375rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: #111827;
+        --color-surface: #1f2937;
+        --color-border: #374151;
+        --color-text-primary: #f9fafb;
+        --color-text-secondary: #d1d5db;
+        --color-text-muted: #9ca3af;
+        --color-error-bg: #450a0a;
+        --color-success-bg: #052e16;
+        --color-warning-bg: #451a03;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
+            0 2px 4px -2px rgba(0, 0, 0, 0.3);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4),
+            0 4px 6px -4px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Page Layout
+   -------------------------------------------------------------------------- */
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+}
+
+#kc-header-wrapper {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--brand-primary);
+    text-align: center;
+    padding: var(--spacing-xl) 0 var(--spacing-md);
+}
+
+#kc-content-wrapper {
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+/* --------------------------------------------------------------------------
+   Login Card
+   -------------------------------------------------------------------------- */
+
+.login-pf-page .card-pf,
+#kc-form-wrapper {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-xl);
+}
+
+/* --------------------------------------------------------------------------
+   Form Elements
+   -------------------------------------------------------------------------- */
+
+.pf-c-form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    outline: none;
+}
+
+.pf-c-form-control:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+}
+
+label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.pf-c-button.pf-m-primary,
+input[type="submit"],
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--brand-primary);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.pf-c-button.pf-m-primary:hover,
+input[type="submit"]:hover,
+.btn-primary:hover {
+    background-color: var(--brand-primary-hover);
+}
+
+.pf-c-button.pf-m-primary:active,
+input[type="submit"]:active,
+.btn-primary:active {
+    background-color: var(--brand-primary-active);
+}
+
+.pf-c-button.pf-m-link,
+a.btn-link {
+    color: var(--brand-primary);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.pf-c-button.pf-m-link:hover,
+a.btn-link:hover {
+    text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Alerts and Messages
+   -------------------------------------------------------------------------- */
+
+.pf-c-alert,
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.pf-c-alert.pf-m-danger,
+.alert-error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+
+.pf-c-alert.pf-m-success,
+.alert-success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
+}
+
+.pf-c-alert.pf-m-warning,
+.alert-warning {
+    background-color: var(--color-warning-bg);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning);
+}
+
+/* --------------------------------------------------------------------------
+   Links and Footer
+   -------------------------------------------------------------------------- */
+
+#kc-registration a,
+#kc-form-options a,
+.kc-social-links a {
+    color: var(--brand-primary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+}
+
+#kc-registration a:hover,
+#kc-form-options a:hover,
+.kc-social-links a:hover {
+    text-decoration: underline;
+}
+
+#kc-info-wrapper {
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    padding: var(--spacing-md) 0;
+}
+
+/* --------------------------------------------------------------------------
+   OTP / MFA Form
+   -------------------------------------------------------------------------- */
+
+#kc-totp-settings {
+    text-align: center;
+}
+
+.kc-totp-otp input[type="text"] {
+    text-align: center;
+    font-size: var(--font-size-xl);
+    letter-spacing: 0.5em;
+    max-width: 16rem;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   Social / Identity Provider Buttons
+   -------------------------------------------------------------------------- */
+
+.kc-social-links {
+    margin-top: var(--spacing-lg);
+}
+
+.kc-social-links li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.kc-social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    transition: background-color 0.15s ease-in-out;
+}
+
+.kc-social-links a:hover {
+    background-color: var(--color-bg);
+    text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Locale Selector
+   -------------------------------------------------------------------------- */
+
+#kc-locale ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#kc-locale li {
+    display: inline-block;
+    margin-right: var(--spacing-sm);
+}
+
+#kc-locale a {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    text-decoration: none;
+}
+
+#kc-locale a:hover {
+    color: var(--brand-primary);
+}

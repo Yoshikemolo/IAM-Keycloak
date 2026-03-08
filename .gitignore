@@ -1,5 +1,25 @@
-# Claude Code
+# IDE and tool configuration
 .claude/
+.idea/
+.vscode/
+*.iml
 
 # PDF documents
 *.pdf
+
+# Build artifacts
+target/
+dist/
+node_modules/
+__pycache__/
+*.pyc
+bin/
+obj/
+
+# Environment files with real secrets (templates are tracked)
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
