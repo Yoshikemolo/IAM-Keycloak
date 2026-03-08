@@ -2086,54 +2086,12 @@ The following Docker Compose file starts Keycloak with a PostgreSQL database alo
 ```yaml
 # docker-compose.yml
 services:
-  keycloak-db:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-    volumes:
-      - keycloak-db-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --import-realm
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak
-      KC_HTTP_PORT: 8080
-      KC_HEALTH_ENABLED: "true"
-      KC_METRICS_ENABLED: "true"
-    ports:
-      - "8080:8080"
-    depends_on:
-      keycloak-db:
-        condition: service_healthy
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\n\r\n' >&3 && cat <&3 | grep -q '200'"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-
   fastapi:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_URL: http://iam-keycloak:8080
       KEYCLOAK_REALM: tenant-acme
       KEYCLOAK_CLIENT_ID: acme-api
       KEYCLOAK_CLIENT_SECRET: change-me-in-real-env
@@ -2144,9 +2102,10 @@ services:
       DEBUG: "true"
     ports:
       - "8000:8000"
-    depends_on:
-      keycloak:
-        condition: service_healthy
+    networks:
+      - iam-network
+    env_file:
+      - .env.example
 
   # --- Optional: OpenTelemetry Collector for local telemetry ---
   otel-collector:
@@ -2161,18 +2120,17 @@ services:
     profiles:
       - telemetry
 
-volumes:
-  keycloak-db-data:
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 ### Local Development Workflow
 
 ```bash
-# Start Keycloak and FastAPI
-docker compose up -d keycloak-db keycloak fastapi
-
-# Wait for Keycloak to be ready
-docker compose logs -f keycloak
+# Start FastAPI (Keycloak must already be running via devops/docker-compose.yml)
+docker compose up -d fastapi
 
 # Open Keycloak Admin Console
 # http://localhost:8080 (admin / admin)

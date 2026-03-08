@@ -359,19 +359,34 @@ destroy_volumes() {
 }
 
 start_example_project() {
-    local examples_dir="${PROJECT_ROOT}/examples/backend"
     echo ""
-    echo -e "  ${BOLD}Select example project:${NC}"
-    echo ""
+    echo -e "  ${BOLD}  Backend${NC}"
 
     local i=1
     local projects=()
-    for dir in "${examples_dir}"/*/; do
+    local proj_dirs=()
+
+    for dir in "${PROJECT_ROOT}/examples/backend"/*/; do
         if [[ -f "${dir}docker-compose.yml" ]]; then
             local name
             name="$(basename "${dir}")"
             projects+=("${name}")
-            echo "    ${i}) ${name}"
+            proj_dirs+=("${dir}")
+            echo "    ${i}) [backend]  ${name}"
+            i=$((i + 1))
+        fi
+    done
+
+    echo ""
+    echo -e "  ${BOLD}  Frontend${NC}"
+
+    for dir in "${PROJECT_ROOT}/examples/frontend"/*/; do
+        if [[ -f "${dir}docker-compose.yml" ]]; then
+            local name
+            name="$(basename "${dir}")"
+            projects+=("${name}")
+            proj_dirs+=("${dir}")
+            echo "    ${i}) [frontend] ${name}"
             i=$((i + 1))
         fi
     done
@@ -390,13 +405,20 @@ start_example_project() {
     fi
 
     local selected="${projects[$((proj_choice - 1))]}"
-    local proj_dir="${examples_dir}/${selected}"
+    local proj_dir="${proj_dirs[$((proj_choice - 1))]}"
+
+    # Verify the platform Keycloak is running (examples connect via external network)
+    if ! docker ps --filter name=iam-keycloak --filter status=running --format '{{.Names}}' | grep -q iam-keycloak; then
+        print_warn "Platform Keycloak is not running. Examples connect to iam-keycloak via devops_iam-network."
+        print_warn "Start the platform first (option 1) before launching examples."
+        return
+    fi
 
     print_info "Starting ${selected}..."
     if docker compose version &>/dev/null 2>&1; then
-        docker compose -f "${proj_dir}/docker-compose.yml" up -d
+        docker compose -f "${proj_dir}docker-compose.yml" up -d --build
     else
-        docker-compose -f "${proj_dir}/docker-compose.yml" up -d
+        docker-compose -f "${proj_dir}docker-compose.yml" up -d --build
     fi
     print_success "${selected} started."
 }

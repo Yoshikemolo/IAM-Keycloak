@@ -1163,36 +1163,28 @@ describe("RoleProtectedRoute", () => {
 ```yaml
 # docker-compose.yml
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.2
-    command: start-dev
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8443
-    ports:
-      - "8443:8443"
-    volumes:
-      - keycloak_data:/opt/keycloak/data
-
   react-app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "5173:5173"
+    env_file:
+      - .env.example
     environment:
-      VITE_KEYCLOAK_AUTHORITY: http://localhost:8443/realms/my-realm
+      VITE_KEYCLOAK_AUTHORITY: http://localhost:8080/realms/my-realm
       VITE_KEYCLOAK_CLIENT_ID: react-spa
       VITE_REDIRECT_URI: http://localhost:5173/callback
       VITE_POST_LOGOUT_REDIRECT_URI: http://localhost:5173/
       VITE_SILENT_REDIRECT_URI: http://localhost:5173/silent-renew.html
       VITE_API_BASE_URL: http://localhost:8080/api
-    depends_on:
-      - keycloak
+    networks:
+      - iam-network
 
-volumes:
-  keycloak_data:
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 ---

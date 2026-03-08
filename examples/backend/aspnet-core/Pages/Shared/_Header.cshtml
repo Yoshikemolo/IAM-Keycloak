@@ -36,8 +36,22 @@
         <div class="language-selector">
             <select onchange="window.location.href='/set-language?culture=' + this.value"
                     title="@Localizer["SelectLanguage"]">
-                <option value="en" @(currentCulture == "en" ? "selected" : "")>EN</option>
-                <option value="es" @(currentCulture == "es" ? "selected" : "")>ES</option>
+                @if (currentCulture == "en")
+                {
+                    <option value="en" selected>EN</option>
+                }
+                else
+                {
+                    <option value="en">EN</option>
+                }
+                @if (currentCulture == "es")
+                {
+                    <option value="es" selected>ES</option>
+                }
+                else
+                {
+                    <option value="es">ES</option>
+                }
             </select>
         </div>
 

@@ -2,12 +2,13 @@
  * @file Next.js middleware for route protection.
  *
  * Intercepts requests to protected routes and redirects
- * unauthenticated users to the sign-in page. For admin routes,
- * checks that the user has the `admin` role and redirects to
- * the unauthorized page if not.
+ * unauthenticated users to the sign-in page via NextAuth v5.
+ *
+ * In Auth.js v5, the `auth` export acts as middleware when
+ * re-exported from this file.
  */
 
-export { default } from "next-auth/middleware";
+export { auth as middleware } from "@/auth/config";
 
 /**
  * Middleware configuration.

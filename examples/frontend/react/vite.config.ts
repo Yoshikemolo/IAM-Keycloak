@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 /**
  * @file Vite configuration for the IAM React Example application.
  *
@@ -7,7 +8,7 @@
  * @see https://vitejs.dev/config/
  */
 
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 

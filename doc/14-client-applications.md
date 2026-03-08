@@ -257,17 +257,29 @@ All platforms should implement:
 Example Docker Compose for local development:
 
 ```yaml
+# All example applications connect to the platform's shared Keycloak instance
+# via the external Docker network. Start the platform first with:
+#   cd devops && docker compose up -d
+#
+# Then start any example project:
+#   cd examples/<project> && docker compose up -d
+
 services:
-  keycloak-dev:
-    image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --import-realm
+  your-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.example
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
+      KEYCLOAK_ISSUER_URI: http://iam-keycloak:8080/realms/tenant-acme
+    networks:
+      - iam-network
+
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 ---

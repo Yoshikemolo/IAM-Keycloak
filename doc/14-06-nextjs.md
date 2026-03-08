@@ -1271,50 +1271,33 @@ describe('RoleGate', () => {
 ```yaml
 # docker-compose.yml
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --import-realm
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8080
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\n\r\n' >&3 && cat <&3 | grep -q '200'"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-
   nextjs-app:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - .env.example
     environment:
       KEYCLOAK_CLIENT_ID: acme-web
       KEYCLOAK_CLIENT_SECRET: your-client-secret
-      KEYCLOAK_ISSUER: http://keycloak:8080/realms/tenant-acme
+      KEYCLOAK_ISSUER: http://iam-keycloak:8080/realms/tenant-acme
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: change-me-to-a-random-secret
       API_BASE_URL: http://backend-api:8081
-    depends_on:
-      keycloak:
-        condition: service_healthy
+    networks:
+      - iam-network
 
   backend-api:
     image: your-backend-api:latest
     ports:
       - "8081:8081"
     environment:
-      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/tenant-acme
-      KEYCLOAK_JWKS_URI: http://keycloak:8080/realms/tenant-acme/protocol/openid-connect/certs
-    depends_on:
-      keycloak:
-        condition: service_healthy
+      KEYCLOAK_ISSUER_URI: http://iam-keycloak:8080/realms/tenant-acme
+      KEYCLOAK_JWKS_URI: http://iam-keycloak:8080/realms/tenant-acme/protocol/openid-connect/certs
+    networks:
+      - iam-network
 
   # Optional: OpenTelemetry Collector
   otel-collector:
@@ -1325,6 +1308,11 @@ services:
     volumes:
       - ./otel-config.yaml:/etc/otel/config.yaml
     command: ["--config", "/etc/otel/config.yaml"]
+
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 Start the stack:

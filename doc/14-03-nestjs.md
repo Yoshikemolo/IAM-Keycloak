@@ -1625,30 +1625,13 @@ describe('Auth E2E', () => {
 ```yaml
 # docker-compose.yml
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --import-realm
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8080
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-
   nestjs-app:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       PORT: 3000
-      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_URL: http://iam-keycloak:8080
       KEYCLOAK_REALM: tenant-acme
       KEYCLOAK_CLIENT_ID: acme-api
       KEYCLOAK_CLIENT_SECRET: change-me
@@ -1656,9 +1639,10 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
     ports:
       - "3000:3000"
-    depends_on:
-      keycloak:
-        condition: service_healthy
+    networks:
+      - iam-network
+    env_file:
+      - .env.example
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.98.0
@@ -1668,6 +1652,11 @@ services:
     ports:
       - "4318:4318"   # OTLP HTTP receiver
       - "8888:8888"   # Prometheus metrics
+
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 ### Dockerfile

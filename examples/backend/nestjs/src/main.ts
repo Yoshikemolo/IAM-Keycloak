@@ -13,9 +13,9 @@ config();
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import * as hbs from 'hbs';
-import * as session from 'express-session';
-import * as passport from 'passport';
+import hbs from 'hbs';
+import session from 'express-session';
+import passport from 'passport';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {

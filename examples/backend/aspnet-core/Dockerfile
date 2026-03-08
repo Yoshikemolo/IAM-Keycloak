@@ -21,8 +21,9 @@ WORKDIR /src
 COPY examples/backend/aspnet-core/IAMExample.csproj .
 RUN dotnet restore
 
-# Copy the application source
+# Copy the application source (exclude Tests/ to avoid Xunit dependency)
 COPY examples/backend/aspnet-core/ .
+RUN rm -rf Tests/
 RUN dotnet publish -c Release -o /app/publish
 
 # ---------- Stage 2: Runtime ----------
