@@ -157,6 +157,47 @@ restart_all() {
     print_success "All services restarted."
 }
 
+recreate_containers() {
+    echo ""
+    echo -e "  ${BOLD}Recreate containers:${NC}"
+    echo "    1) All services (stop, remove, and create fresh containers)"
+    echo "    2) Keycloak only"
+    echo "    3) PostgreSQL only"
+    echo ""
+    read -rp "  Selection [1]: " recreate_choice
+    recreate_choice="${recreate_choice:-1}"
+
+    case "${recreate_choice}" in
+        1)
+            print_info "Recreating all containers (${SELECTED_ENV})..."
+            compose_cmd down
+            compose_cmd up -d
+            print_success "All containers recreated."
+            ;;
+        2)
+            print_info "Recreating Keycloak container..."
+            compose_cmd stop keycloak
+            compose_cmd rm -f keycloak
+            compose_cmd up -d keycloak
+            print_success "Keycloak container recreated."
+            ;;
+        3)
+            print_info "Recreating PostgreSQL container..."
+            compose_cmd stop postgres
+            compose_cmd rm -f postgres
+            compose_cmd up -d postgres
+            print_success "PostgreSQL container recreated."
+            ;;
+        *)
+            print_error "Invalid selection"
+            return
+            ;;
+    esac
+
+    echo ""
+    print_info "Keycloak Admin Console: http://localhost:8080/admin"
+}
+
 show_status() {
     print_info "Service status:"
     echo ""
@@ -227,9 +268,63 @@ build_spi() {
         print_error "Maven is not installed. Cannot build SPI providers."
         return
     fi
+
+    # Ensure JAVA_HOME points to a JDK (not a JRE) so Maven can find javac.
+    # If the current JAVA_HOME lacks bin/javac, scan common installation dirs.
+    detect_jdk() {
+        local candidate_dirs=(
+            "/c/Program Files/Eclipse Adoptium"
+            "/c/Program Files/Java"
+            "/c/Program Files/Microsoft/jdk"
+            "/c/Program Files/BellSoft"
+            "/c/Program Files/Amazon Corretto"
+            "/usr/lib/jvm"
+            "/opt/java"
+        )
+
+        for base in "${candidate_dirs[@]}"; do
+            [[ -d "${base}" ]] || continue
+            for dir in "${base}"/jdk-*/ "${base}"/jdk*/; do
+                if [[ -f "${dir}bin/javac" || -f "${dir}bin/javac.exe" ]]; then
+                    # Remove trailing slash for clean path
+                    echo "${dir%/}"
+                    return 0
+                fi
+            done
+        done
+        return 1
+    }
+
+    local effective_java_home="${JAVA_HOME:-}"
+
+    # Check if current JAVA_HOME has a compiler
+    if [[ -z "${effective_java_home}" ]] || \
+       { [[ ! -f "${effective_java_home}/bin/javac" ]] && [[ ! -f "${effective_java_home}/bin/javac.exe" ]]; }; then
+
+        print_warn "JAVA_HOME is not set or points to a JRE without javac."
+        if [[ -n "${effective_java_home}" ]]; then
+            print_warn "Current JAVA_HOME: ${effective_java_home}"
+        fi
+
+        print_info "Scanning for an installed JDK..."
+        local detected_jdk
+        if detected_jdk="$(detect_jdk)"; then
+            print_success "Found JDK: ${detected_jdk}"
+            effective_java_home="${detected_jdk}"
+        else
+            print_error "No JDK installation found. Install a JDK (e.g. Eclipse Temurin 17+) and set JAVA_HOME."
+            return
+        fi
+    fi
+
+    print_info "Using JAVA_HOME: ${effective_java_home}"
     print_info "Building custom SPI providers..."
-    (cd "${PROJECT_ROOT}/keycloak/providers" && mvn package -DskipTests)
-    print_success "SPI JAR built. Restart Keycloak to pick up changes."
+    if (cd "${PROJECT_ROOT}/keycloak/providers" && JAVA_HOME="${effective_java_home}" mvn package -DskipTests); then
+        print_success "SPI JAR built: keycloak/providers/target/keycloak-custom-providers.jar"
+        print_info "Restart Keycloak to pick up changes."
+    else
+        print_error "SPI build failed. Check the Maven output above for details."
+    fi
 }
 
 import_realm() {
@@ -344,35 +439,37 @@ main() {
         echo "    1) Start all services"
         echo "    2) Stop all services"
         echo "    3) Restart all services"
+        echo "    4) Recreate containers"
         echo ""
         echo -e "${BOLD}  Monitoring${NC}"
-        echo "    4) Show service status"
-        echo "    5) View logs"
-        echo "    6) Health check"
+        echo "    5) Show service status"
+        echo "    6) View logs"
+        echo "    7) Health check"
         echo ""
         echo -e "${BOLD}  Build and Deploy${NC}"
-        echo "    7) Build custom SPI providers (Maven)"
-        echo "    8) Realm import info"
-        echo "    9) Start an example project"
+        echo "    8) Build custom SPI providers (Maven)"
+        echo "    9) Realm import info"
+        echo "   10) Start an example project"
         echo ""
         echo -e "${BOLD}  Cleanup${NC}"
-        echo "   10) Destroy all data (volumes)"
+        echo "   11) Destroy all data (volumes)"
         echo ""
         echo -e "    ${RED}0) Exit${NC}"
         echo ""
-        read -rp "  Select an option [0-10]: " choice
+        read -rp "  Select an option [0-11]: " choice
 
         case "${choice}" in
             1)  start_all ;;
             2)  stop_all ;;
             3)  restart_all ;;
-            4)  show_status ;;
-            5)  show_logs ;;
-            6)  health_check ;;
-            7)  build_spi ;;
-            8)  import_realm ;;
-            9)  start_example_project ;;
-            10) destroy_volumes ;;
+            4)  recreate_containers ;;
+            5)  show_status ;;
+            6)  show_logs ;;
+            7)  health_check ;;
+            8)  build_spi ;;
+            9)  import_realm ;;
+            10) start_example_project ;;
+            11) destroy_volumes ;;
             0)
                 echo ""
                 print_info "Exiting. Goodbye."

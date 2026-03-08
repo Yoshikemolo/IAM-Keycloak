@@ -57,7 +57,7 @@ keycloak:
   optimized: false
 
   # -- Enabled Keycloak features (comma-separated)
-  features: "token-exchange,admin-fine-grained-authz,declarative-user-profile"
+  features: "token-exchange,admin-fine-grained-authz"
 
   # -- Disabled Keycloak features (comma-separated)
   featuresDisabled: ""

@@ -329,7 +329,6 @@ Certain realm settings vary by environment:
 | `scripts` | Enabled | Enabled | Enabled |
 | `token-exchange` | Enabled | Enabled | Enabled |
 | `admin-fine-grained-authz` | Enabled | Enabled | Enabled |
-| `declarative-user-profile` | Enabled | Enabled | Enabled |
 | `preview` | Enabled | Disabled | Disabled |
 | `account3` | Enabled | Enabled | Enabled |
 | `docker` | Enabled | Disabled | Disabled |

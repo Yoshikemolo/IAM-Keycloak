@@ -29,7 +29,7 @@ keycloak:
   logLevel: "WARN"
   logFormat: "json"
   optimized: true
-  features: "token-exchange,admin-fine-grained-authz,declarative-user-profile"
+  features: "token-exchange,admin-fine-grained-authz"
 
   database:
     vendor: "oracle"

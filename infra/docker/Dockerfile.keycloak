@@ -62,7 +62,7 @@ LABEL org.opencontainers.image.base.name="quay.io/keycloak/keycloak:26.4.2"
 ARG KC_DB=postgres
 ARG KC_HEALTH_ENABLED=true
 ARG KC_METRICS_ENABLED=true
-ARG KC_FEATURES=token-exchange,admin-fine-grained-authz,declarative-user-profile
+ARG KC_FEATURES=token-exchange,admin-fine-grained-authz
 
 # -- Environment defaults (overridable at runtime) --------------------------
 ENV KC_DB=${KC_DB} \
