@@ -17,12 +17,12 @@ services:
       dockerfile: examples/backend/express/Dockerfile
     container_name: iam-express-app
     ports:
-      - "3000:3000"
+      - "3002:3000"
     env_file:
       - .env.example
     environment:
       KEYCLOAK_URL: http://iam-keycloak:8080
-      APP_URL: http://localhost:3000
+      APP_URL: http://localhost:3002
     networks:
       - iam-network
 
