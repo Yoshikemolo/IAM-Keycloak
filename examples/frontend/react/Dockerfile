@@ -42,9 +42,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built application from the build stage.
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Create writable directories required by Nginx when running as non-root.
-RUN mkdir -p /var/cache/nginx /var/run && \
-    chown -R nginx:nginx /var/cache/nginx /var/run /usr/share/nginx/html
+# Configure Nginx to run as non-root: write the PID file to /tmp and ensure
+# writable directories for cache and logs.
+RUN sed -i 's|/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf && \
+    mkdir -p /var/cache/nginx /tmp && \
+    chown -R nginx:nginx /var/cache/nginx /tmp /usr/share/nginx/html
 
 # Expose port 80 for HTTP traffic.
 EXPOSE 80
