@@ -20,6 +20,7 @@ services:
       - .env.example
     environment:
       KEYCLOAK_ISSUER: http://iam-keycloak:8080/realms/iam-example
+      AUTH_TRUST_HOST: "true"
     read_only: true
     tmpfs:
       - /tmp
