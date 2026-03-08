@@ -49,13 +49,13 @@ export class AuthController {
   @Get('logout')
   logout(@Req() req: Request, @Res() res: Response): void {
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'iam-demo';
+    const realm = process.env.KEYCLOAK_REALM || 'iam-example';
     const appUrl = process.env.APP_URL || 'http://localhost:3001';
 
     const logoutUrl =
       `${keycloakUrl}/realms/${realm}/protocol/openid-connect/logout` +
       `?post_logout_redirect_uri=${encodeURIComponent(appUrl)}` +
-      `&client_id=${process.env.KEYCLOAK_CLIENT_ID || 'nestjs-app'}`;
+      `&client_id=${process.env.KEYCLOAK_CLIENT_ID || 'iam-backend'}`;
 
     req.logout(() => {
       req.session.destroy(() => {

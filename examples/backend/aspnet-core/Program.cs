@@ -42,9 +42,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 // ---------- Authentication ----------
 
 var keycloakSection = builder.Configuration.GetSection("Keycloak");
-var authority = keycloakSection["Authority"] ?? "http://localhost:8080/realms/tenant";
-var clientId = keycloakSection["ClientId"] ?? "aspnet-core-app";
-var clientSecret = keycloakSection["ClientSecret"] ?? "change-me";
+var authority = keycloakSection["Authority"] ?? "http://localhost:8080/realms/iam-example";
+var clientId = keycloakSection["ClientId"] ?? "iam-backend";
+var clientSecret = keycloakSection["ClientSecret"] ?? "change-me-in-production";
 var publicAuthority = keycloakSection["PublicAuthority"] ?? authority;
 
 builder.Services.AddAuthentication(options =>

@@ -18,12 +18,12 @@ const KEYCLOAK_URL: string = import.meta.env.VITE_KEYCLOAK_URL ?? "http://localh
 /**
  * Keycloak realm name (e.g. `tenant`).
  */
-const KEYCLOAK_REALM: string = import.meta.env.VITE_KEYCLOAK_REALM ?? "tenant";
+const KEYCLOAK_REALM: string = import.meta.env.VITE_KEYCLOAK_REALM ?? "iam-example";
 
 /**
- * Keycloak client ID registered for this SPA (e.g. `vue-app`).
+ * Keycloak client ID registered for this SPA (e.g. `iam-frontend`).
  */
-const KEYCLOAK_CLIENT_ID: string = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "vue-app";
+const KEYCLOAK_CLIENT_ID: string = import.meta.env.VITE_KEYCLOAK_CLIENT_ID ?? "iam-frontend";
 
 /**
  * OIDC configuration object for `oidc-client-ts`'s `UserManager`.

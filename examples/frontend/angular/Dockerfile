@@ -18,6 +18,9 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
+# Build configuration: "development" for local Docker, "production" for deploy.
+ARG NG_CONFIG=development
+
 # Copy dependency manifests first for better layer caching.
 COPY package.json package-lock.json* ./
 
@@ -27,8 +30,8 @@ RUN npm ci
 # Copy the rest of the application source.
 COPY . .
 
-# Produce the production build output in /app/dist.
-RUN npm run build
+# Produce the build output in /app/dist using the selected configuration.
+RUN npx ng build --configuration=${NG_CONFIG}
 
 # ---- Stage 2: Runtime ----
 FROM nginx:alpine-slim AS runtime
@@ -42,9 +45,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built application from the build stage.
 COPY --from=build /app/dist/iam-angular-example/browser /usr/share/nginx/html
 
-# Create writable directories required by Nginx when running as non-root.
-RUN mkdir -p /var/cache/nginx /var/run && \
-    chown -R nginx:nginx /var/cache/nginx /var/run /usr/share/nginx/html
+# Configure Nginx to run as non-root: write the PID file to /tmp and ensure
+# writable directories for cache and logs.
+RUN sed -i 's|/run/nginx.pid|/tmp/nginx.pid|' /etc/nginx/nginx.conf && \
+    mkdir -p /var/cache/nginx /tmp && \
+    chown -R nginx:nginx /var/cache/nginx /tmp /usr/share/nginx/html
 
 # Expose port 80 for HTTP traffic.
 EXPOSE 80
