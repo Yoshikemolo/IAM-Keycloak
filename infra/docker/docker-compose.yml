@@ -95,7 +95,7 @@ services:
       KC_LOG_LEVEL: ${KC_LOG_LEVEL:-info}
       KC_LOG_CONSOLE_OUTPUT: json
       # -- Features -----------------------------------------------------------
-      KC_FEATURES: token-exchange,admin-fine-grained-authz,declarative-user-profile
+      KC_FEATURES: token-exchange,admin-fine-grained-authz
       # -- Realm import on startup -------------------------------------------
       KC_SPI_IMPORT_DIR: /opt/keycloak/data/import
     command: ["start-dev", "--import-realm"]

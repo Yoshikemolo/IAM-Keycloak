@@ -1017,7 +1017,7 @@ FROM quay.io/keycloak/keycloak:24.0.0 AS production
 
 # Set build-time arguments
 ARG KC_DB=postgres
-ARG KC_FEATURES=token-exchange,admin-fine-grained-authz,declarative-user-profile
+ARG KC_FEATURES=token-exchange,admin-fine-grained-authz
 
 ENV KC_DB=${KC_DB}
 ENV KC_FEATURES=${KC_FEATURES}

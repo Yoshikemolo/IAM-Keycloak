@@ -227,9 +227,63 @@ build_spi() {
         print_error "Maven is not installed. Cannot build SPI providers."
         return
     fi
+
+    # Ensure JAVA_HOME points to a JDK (not a JRE) so Maven can find javac.
+    # If the current JAVA_HOME lacks bin/javac, scan common installation dirs.
+    detect_jdk() {
+        local candidate_dirs=(
+            "/c/Program Files/Eclipse Adoptium"
+            "/c/Program Files/Java"
+            "/c/Program Files/Microsoft/jdk"
+            "/c/Program Files/BellSoft"
+            "/c/Program Files/Amazon Corretto"
+            "/usr/lib/jvm"
+            "/opt/java"
+        )
+
+        for base in "${candidate_dirs[@]}"; do
+            [[ -d "${base}" ]] || continue
+            for dir in "${base}"/jdk-*/ "${base}"/jdk*/; do
+                if [[ -f "${dir}bin/javac" || -f "${dir}bin/javac.exe" ]]; then
+                    # Remove trailing slash for clean path
+                    echo "${dir%/}"
+                    return 0
+                fi
+            done
+        done
+        return 1
+    }
+
+    local effective_java_home="${JAVA_HOME:-}"
+
+    # Check if current JAVA_HOME has a compiler
+    if [[ -z "${effective_java_home}" ]] || \
+       { [[ ! -f "${effective_java_home}/bin/javac" ]] && [[ ! -f "${effective_java_home}/bin/javac.exe" ]]; }; then
+
+        print_warn "JAVA_HOME is not set or points to a JRE without javac."
+        if [[ -n "${effective_java_home}" ]]; then
+            print_warn "Current JAVA_HOME: ${effective_java_home}"
+        fi
+
+        print_info "Scanning for an installed JDK..."
+        local detected_jdk
+        if detected_jdk="$(detect_jdk)"; then
+            print_success "Found JDK: ${detected_jdk}"
+            effective_java_home="${detected_jdk}"
+        else
+            print_error "No JDK installation found. Install a JDK (e.g. Eclipse Temurin 17+) and set JAVA_HOME."
+            return
+        fi
+    fi
+
+    print_info "Using JAVA_HOME: ${effective_java_home}"
     print_info "Building custom SPI providers..."
-    (cd "${PROJECT_ROOT}/keycloak/providers" && mvn package -DskipTests)
-    print_success "SPI JAR built. Restart Keycloak to pick up changes."
+    if (cd "${PROJECT_ROOT}/keycloak/providers" && JAVA_HOME="${effective_java_home}" mvn package -DskipTests); then
+        print_success "SPI JAR built: keycloak/providers/target/keycloak-custom-providers.jar"
+        print_info "Restart Keycloak to pick up changes."
+    else
+        print_error "SPI build failed. Check the Maven output above for details."
+    fi
 }
 
 import_realm() {
