@@ -311,7 +311,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "change-me-on-first-login",
+          "value": "Change-Me-On-F1rst-Login!",
           "temporary": true
         }
       ],
@@ -331,7 +331,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "change-me-on-first-login",
+          "value": "Change-Me-On-F1rst-Login!",
           "temporary": true
         }
       ],
