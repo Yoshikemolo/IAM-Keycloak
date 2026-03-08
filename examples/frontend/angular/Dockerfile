@@ -18,6 +18,9 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
+# Build configuration: "development" for local Docker, "production" for deploy.
+ARG NG_CONFIG=development
+
 # Copy dependency manifests first for better layer caching.
 COPY package.json package-lock.json* ./
 
@@ -27,8 +30,8 @@ RUN npm ci
 # Copy the rest of the application source.
 COPY . .
 
-# Produce the production build output in /app/dist.
-RUN npm run build
+# Produce the build output in /app/dist using the selected configuration.
+RUN npx ng build --configuration=${NG_CONFIG}
 
 # ---- Stage 2: Runtime ----
 FROM nginx:alpine-slim AS runtime

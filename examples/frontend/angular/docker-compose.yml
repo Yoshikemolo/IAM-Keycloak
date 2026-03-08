@@ -12,7 +12,10 @@
 services:
   # ---------- Angular SPA ----------
   app:
-    build: .
+    build:
+      context: .
+      args:
+        NG_CONFIG: development
     container_name: iam-angular-app
     ports:
       - "4200:80"
