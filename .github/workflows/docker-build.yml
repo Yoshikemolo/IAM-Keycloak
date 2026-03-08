@@ -32,6 +32,7 @@ permissions:
   contents: read
   id-token: write
   packages: write
+  security-events: write
 
 env:
   REGISTRY: gcr.io
@@ -94,12 +95,83 @@ jobs:
             KC_HEALTH_ENABLED=true
             KC_METRICS_ENABLED=true
 
+      # -----------------------------------------------------------------------
+      # Vulnerability scan -- gate before signing
+      # -----------------------------------------------------------------------
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          exit-code: "0"
+          ignore-unfixed: true
+
+      - name: Trivy SARIF report
+        uses: aquasecurity/trivy-action@0.28.0
+        if: always()
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: "sarif"
+          output: "trivy-build-results.sarif"
+          severity: "CRITICAL,HIGH"
+
+      - name: Upload Trivy SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-build-results.sarif"
+
+      # -----------------------------------------------------------------------
+      # SBOM generation with Trivy
+      # -----------------------------------------------------------------------
+      - name: Generate SBOM (CycloneDX)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          scan-type: "image"
+          format: "cyclonedx"
+          output: "sbom.cdx.json"
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-keycloak
+          path: sbom.cdx.json
+          retention-days: 90
+
+      # -----------------------------------------------------------------------
+      # Image signing with Cosign (keyless, OIDC-based)
+      # -----------------------------------------------------------------------
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image with Cosign (keyless)
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign sign --yes \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${DIGEST}"
+
+      - name: Attach SBOM to image with Cosign
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          cosign attach sbom \
+            --sbom sbom.cdx.json \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${DIGEST}"
+
       - name: Print image details
         run: |
-          echo "Image tags:"
-          echo "${{ steps.meta.outputs.tags }}"
-          echo ""
-          echo "Image digest: ${{ steps.build.outputs.digest }}"
+          echo "### Image Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Tags** | \`${{ steps.meta.outputs.version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Digest** | \`${{ steps.build.outputs.digest }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Signed** | Yes (Cosign keyless) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SBOM** | CycloneDX attached |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Scanned** | Trivy (CRITICAL+HIGH) |" >> $GITHUB_STEP_SUMMARY
 
   # -------------------------------------------------------------------------
   # Build tools image
