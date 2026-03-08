@@ -10,11 +10,11 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY examples/backend/express/package.json examples/backend/express/package-lock.json* ./
 RUN npm ci
 
-COPY tsconfig.json ./
-COPY src/ src/
+COPY examples/backend/express/tsconfig.json ./
+COPY examples/backend/express/src/ src/
 
 RUN npm run build
 
@@ -25,21 +25,21 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY package.json package-lock.json* ./
+COPY examples/backend/express/package.json examples/backend/express/package-lock.json* ./
 RUN npm ci --omit=dev
 
 # Copy compiled output
 COPY --from=build /app/dist/ dist/
 
 # Copy runtime assets (views, public, i18n, shared fonts/branding)
-COPY views/ views/
-COPY public/ public/
-COPY i18n/ i18n/
+COPY examples/backend/express/views/ views/
+COPY examples/backend/express/public/ public/
+COPY examples/backend/express/i18n/ i18n/
 
 # Copy shared assets (fonts + branding) into the public directory
 # so Express can serve them at /fonts/ and /branding/
-COPY ../../../assets/fonts/ public/fonts/
-COPY ../../../assets/branding/ public/branding/
+COPY assets/fonts/ public/fonts/
+COPY assets/branding/ public/branding/
 
 EXPOSE 3000
 

@@ -33,7 +33,7 @@ export const authConfig: PassedInitialConfig = {
     responseType: 'code',
     silentRenew: true,
     useRefreshToken: true,
-    renewTimeBeforeTokenExpiresInSec: 30,
+    tokenRefreshInSeconds: 30,
     logLevel: environment.production ? LogLevel.Error : LogLevel.Debug,
     secureRoutes: [environment.keycloakUrl],
     customParamsAuthRequest: {

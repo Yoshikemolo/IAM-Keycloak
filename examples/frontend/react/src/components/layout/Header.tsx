@@ -17,13 +17,13 @@ import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { LanguageSelector } from "@/components/common/LanguageSelector";
 
 /* ------------------------------------------------------------------
- * Logo imports.
- * Vite resolves these static asset imports to hashed URLs at build
- * time, which works correctly even when the source files live outside
- * the `src/` directory (Vite follows the import graph).
+ * Logo paths.
+ * Branding SVGs are served from the `public/branding/` directory so
+ * they remain inside the Docker build context and are accessible as
+ * absolute URL paths at runtime.
  * ------------------------------------------------------------------ */
-import darkLogo from "../../../../../assets/branding/dark-color-logo-with-claim.svg";
-import lightLogo from "../../../../../assets/branding/light-color-logo-with-claim.svg";
+const darkLogo = "/branding/dark-color-logo-with-claim.svg";
+const lightLogo = "/branding/light-color-logo-with-claim.svg";
 
 /**
  * Application header bar.

@@ -9,6 +9,7 @@ import passport from "passport";
 import {
   Strategy as OpenIDConnectStrategy,
   type VerifyCallback,
+  type VerifyFunction,
 } from "passport-openidconnect";
 import type { AppUser } from "../types/index.js";
 
@@ -39,7 +40,7 @@ export function configurePassport(): void {
         callbackURL: `${appUrl()}/auth/callback`,
         scope: ["openid", "profile", "email"],
       },
-      (
+      ((
         _issuer: string,
         profile: passport.Profile & { _json?: Record<string, unknown> },
         _context: unknown,
@@ -94,7 +95,7 @@ export function configurePassport(): void {
         };
 
         return done(null, user);
-      },
+      }) as VerifyFunction,
     ),
   );
 

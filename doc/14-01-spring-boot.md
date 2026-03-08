@@ -1444,53 +1444,23 @@ class KeycloakIntegrationTest {
 ```yaml
 # docker-compose.yml
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:26.1.0
-    command: start-dev --import-realm
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_HTTP_PORT: 8080
-      KC_HEALTH_ENABLED: "true"
-      KC_METRICS_ENABLED: "true"
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./keycloak/realms:/opt/keycloak/data/import
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\n\r\n' >&3 && cat <&3 | grep -q '200'"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-      start_period: 30s
-
-  postgres-keycloak:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: keycloak
-    ports:
-      - "5432:5432"
-    volumes:
-      - keycloak-db-data:/var/lib/postgresql/data
-
   app:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: local
-      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/tenant-acme
-      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/tenant-acme/protocol/openid-connect/certs
+      KEYCLOAK_ISSUER_URI: http://iam-keycloak:8080/realms/tenant-acme
+      KEYCLOAK_JWK_SET_URI: http://iam-keycloak:8080/realms/tenant-acme/protocol/openid-connect/certs
       KEYCLOAK_CLIENT_ID: acme-api
       KEYCLOAK_CLIENT_SECRET: change-me-in-production
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
     ports:
       - "8081:8081"
-    depends_on:
-      keycloak:
-        condition: service_healthy
+    networks:
+      - iam-network
+    env_file:
+      - .env.example
 
   # Optional: OpenTelemetry Collector for local observability
   otel-collector:
@@ -1502,8 +1472,10 @@ services:
     volumes:
       - ./otel/collector-config.yaml:/etc/otelcol-contrib/config.yaml
 
-volumes:
-  keycloak-db-data:
+networks:
+  iam-network:
+    external: true
+    name: devops_iam-network
 ```
 
 ---

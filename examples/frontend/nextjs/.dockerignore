@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------------------
+# Docker ignore rules for the IAM Next.js Example.
+#
+# Prevents unnecessary files from being included in the Docker build
+# context, reducing build time and image size.
+# ---------------------------------------------------------------------------
+
+node_modules
+.next
+.git
+.gitignore
+*.md
+.env*
+!.env.example
+nginx.conf
+tests
+scripts
+coverage
+.vscode
+.idea

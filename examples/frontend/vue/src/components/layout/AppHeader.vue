@@ -23,8 +23,14 @@ import { useAuthStore } from "@/stores/auth";
 import ThemeToggle from "@/components/common/ThemeToggle.vue";
 import LanguageSelector from "@/components/common/LanguageSelector.vue";
 
-import darkLogo from "../../../../../assets/branding/dark-color-logo-with-claim.svg";
-import lightLogo from "../../../../../assets/branding/light-color-logo-with-claim.svg";
+/**
+ * Logo paths.
+ * Branding SVGs are served from the `public/branding/` directory so
+ * they remain inside the Docker build context and are accessible as
+ * absolute URL paths at runtime.
+ */
+const darkLogo = "/branding/dark-color-logo-with-claim.svg";
+const lightLogo = "/branding/light-color-logo-with-claim.svg";
 
 const { t } = useI18n();
 const { theme } = useTheme();
