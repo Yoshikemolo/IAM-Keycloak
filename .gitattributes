@@ -1,14 +1,32 @@
-# Documentation - exclude from language stats
+# =========================================================================
+# .gitattributes -- Linguist overrides for GitHub language statistics
+# =========================================================================
+# Only suppress files that genuinely are not source code (documentation,
+# generated assets, vendored configs).  Application code in all languages
+# (Java, TypeScript, Python, C#, Vue, HCL, Shell) should be counted.
+# =========================================================================
+
+# Documentation
 *.md linguist-documentation
 doc/** linguist-documentation
 planning/** linguist-documentation
 
-# Shell scripts - exclude from language stats
-*.sh linguist-vendored
+# Generated / vendored assets (not application code)
+assets/fonts/** linguist-vendored
+assets/tech-logos/** linguist-vendored
 
-# DevOps/Config - exclude from language stats
-*.yml linguist-vendored
-*.yaml linguist-vendored
-Dockerfile linguist-vendored
+# Infrastructure config files (keep HCL/Terraform visible)
+infra/config/** linguist-vendored
 docker-compose*.yml linguist-vendored
-*.tf linguist-vendored
+Dockerfile linguist-vendored
+*.helmignore linguist-vendored
+
+# Ensure key languages are detected as source code
+*.ts linguist-detectable
+*.tsx linguist-detectable
+*.vue linguist-detectable
+*.py linguist-detectable
+*.cs linguist-detectable
+*.java linguist-detectable
+*.tf linguist-detectable
+*.sh linguist-detectable
