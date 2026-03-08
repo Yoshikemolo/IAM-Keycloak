@@ -18,7 +18,7 @@ const KEYCLOAK_URL: string = import.meta.env.VITE_KEYCLOAK_URL ?? "http://localh
 /**
  * Keycloak realm name (e.g. `tenant`).
  */
-const KEYCLOAK_REALM: string = import.meta.env.VITE_KEYCLOAK_REALM ?? "tenant";
+const KEYCLOAK_REALM: string = import.meta.env.VITE_KEYCLOAK_REALM ?? "iam-example";
 
 /**
  * Keycloak client ID registered for this SPA (e.g. `react-app`).

@@ -12,7 +12,7 @@ export const environment = {
   keycloakUrl: 'https://keycloak.example.com',
 
   /** Keycloak realm name. */
-  keycloakRealm: 'iam-demo',
+  keycloakRealm: 'iam-example',
 
   /** OIDC client identifier registered in Keycloak. */
   keycloakClientId: 'iam-angular-app',

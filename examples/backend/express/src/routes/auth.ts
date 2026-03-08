@@ -46,7 +46,7 @@ router.get("/auth/logout", (req, res) => {
 
     req.session.destroy(() => {
       const keycloakUrl = process.env.KEYCLOAK_URL ?? "http://localhost:8080";
-      const realm = process.env.KEYCLOAK_REALM ?? "iam-demo";
+      const realm = process.env.KEYCLOAK_REALM ?? "iam-example";
       const appUrl = process.env.APP_URL ?? "http://localhost:3000";
 
       const logoutUrl = new URL(

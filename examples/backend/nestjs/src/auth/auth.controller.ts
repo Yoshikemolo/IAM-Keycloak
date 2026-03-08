@@ -49,7 +49,7 @@ export class AuthController {
   @Get('logout')
   logout(@Req() req: Request, @Res() res: Response): void {
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'iam-demo';
+    const realm = process.env.KEYCLOAK_REALM || 'iam-example';
     const appUrl = process.env.APP_URL || 'http://localhost:3001';
 
     const logoutUrl =

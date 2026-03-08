@@ -19,7 +19,7 @@ services:
     env_file:
       - .env.example
     environment:
-      KEYCLOAK_ISSUER: http://iam-keycloak:8080/realms/tenant
+      KEYCLOAK_ISSUER: http://iam-keycloak:8080/realms/iam-example
     read_only: true
     tmpfs:
       - /tmp

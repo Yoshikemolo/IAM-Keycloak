@@ -14,7 +14,7 @@ import { Strategy, VerifyCallback } from 'passport-openidconnect';
 export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
   constructor() {
     const keycloakUrl = process.env.KEYCLOAK_URL || 'http://localhost:8080';
-    const realm = process.env.KEYCLOAK_REALM || 'iam-demo';
+    const realm = process.env.KEYCLOAK_REALM || 'iam-example';
     const appUrl = process.env.APP_URL || 'http://localhost:3001';
 
     super({

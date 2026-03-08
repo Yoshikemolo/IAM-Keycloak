@@ -19,7 +19,7 @@ services:
     env_file:
       - .env.example
     environment:
-      OIDC_ISSUER: http://iam-keycloak:8080/realms/iam-demo
+      OIDC_ISSUER: http://iam-keycloak:8080/realms/iam-example
     networks:
       - iam-network
 

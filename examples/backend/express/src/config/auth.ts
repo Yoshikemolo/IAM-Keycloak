@@ -15,7 +15,7 @@ import type { AppUser } from "../types/index.js";
 
 /** Keycloak connection parameters sourced from environment variables. */
 const keycloakUrl = () => process.env.KEYCLOAK_URL ?? "http://localhost:8080";
-const realm = () => process.env.KEYCLOAK_REALM ?? "iam-demo";
+const realm = () => process.env.KEYCLOAK_REALM ?? "iam-example";
 const clientId = () => process.env.KEYCLOAK_CLIENT_ID ?? "express-app";
 const clientSecret = () => process.env.KEYCLOAK_CLIENT_SECRET ?? "";
 const appUrl = () => process.env.APP_URL ?? "http://localhost:3000";
