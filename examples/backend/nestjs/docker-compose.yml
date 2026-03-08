@@ -17,12 +17,12 @@ services:
       dockerfile: examples/backend/nestjs/Dockerfile
     container_name: iam-nestjs-app
     ports:
-      - "3001:3001"
+      - "3003:3001"
     env_file:
       - .env.example
     environment:
       KEYCLOAK_URL: http://iam-keycloak:8080
-      APP_URL: http://localhost:3001
+      APP_URL: http://localhost:3003
     networks:
       - iam-network
 

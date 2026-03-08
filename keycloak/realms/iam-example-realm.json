@@ -213,21 +213,21 @@
       "baseUrl": "/",
       "redirectUris": [
         "https://app.example.com/*",
-        "http://localhost:3000/*",
+        "http://localhost:3001/*",
         "http://localhost:4200/*",
         "http://localhost:5173/*",
         "http://localhost:5174/*"
       ],
       "webOrigins": [
         "https://app.example.com",
-        "http://localhost:3000",
+        "http://localhost:3001",
         "http://localhost:4200",
         "http://localhost:5173",
         "http://localhost:5174"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "https://app.example.com/*##http://localhost:3000/*##http://localhost:4200/*##http://localhost:5173/*##http://localhost:5174/*",
+        "post.logout.redirect.uris": "https://app.example.com/*##http://localhost:3001/*##http://localhost:4200/*##http://localhost:5173/*##http://localhost:5174/*",
         "access.token.lifespan": "300",
         "client.session.idle.timeout": "1800"
       },
@@ -258,8 +258,8 @@
       "baseUrl": "/",
       "redirectUris": [
         "https://api.example.com/*",
-        "http://localhost:3000/*",
-        "http://localhost:3001/*",
+        "http://localhost:3002/*",
+        "http://localhost:3003/*",
         "http://localhost:5000/*",
         "http://localhost:8000/*",
         "http://localhost:8081/*",
