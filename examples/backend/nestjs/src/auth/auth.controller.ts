@@ -55,7 +55,7 @@ export class AuthController {
     const logoutUrl =
       `${keycloakUrl}/realms/${realm}/protocol/openid-connect/logout` +
       `?post_logout_redirect_uri=${encodeURIComponent(appUrl)}` +
-      `&client_id=${process.env.KEYCLOAK_CLIENT_ID || 'nestjs-app'}`;
+      `&client_id=${process.env.KEYCLOAK_CLIENT_ID || 'iam-backend'}`;
 
     req.logout(() => {
       req.session.destroy(() => {

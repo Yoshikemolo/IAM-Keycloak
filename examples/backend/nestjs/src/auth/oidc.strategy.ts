@@ -22,8 +22,8 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
       authorizationURL: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/auth`,
       tokenURL: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/token`,
       userInfoURL: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/userinfo`,
-      clientID: process.env.KEYCLOAK_CLIENT_ID || 'nestjs-app',
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || 'change-me',
+      clientID: process.env.KEYCLOAK_CLIENT_ID || 'iam-backend',
+      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || 'change-me-in-production',
       callbackURL: `${appUrl}/auth/callback`,
       scope: ['openid', 'profile', 'email'],
     });
@@ -55,7 +55,7 @@ export class OidcStrategy extends PassportStrategy(Strategy, 'oidc') {
       );
 
       realmRoles = tokenPayload.realm_access?.roles || [];
-      const clientId = process.env.KEYCLOAK_CLIENT_ID || 'nestjs-app';
+      const clientId = process.env.KEYCLOAK_CLIENT_ID || 'iam-backend';
       clientRoles =
         tokenPayload.resource_access?.[clientId]?.roles || [];
       roles = [...realmRoles, ...clientRoles];

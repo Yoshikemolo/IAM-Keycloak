@@ -16,7 +16,7 @@ export const environment = {
   keycloakRealm: 'iam-example',
 
   /** OIDC client identifier registered in Keycloak. */
-  keycloakClientId: 'iam-angular-app',
+  keycloakClientId: 'iam-frontend',
 
   /** Post-login redirect URI. */
   redirectUrl: 'http://localhost:4200/callback',

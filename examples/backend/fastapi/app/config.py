@@ -33,8 +33,8 @@ class Settings(BaseSettings):
     app_secret_key: str = "change-me-to-a-random-secret-key"
     app_base_url: str = "http://localhost:8000"
     oidc_issuer: str = "http://localhost:8080/realms/iam-example"
-    oidc_client_id: str = "iam-fastapi-client"
-    oidc_client_secret: str = "change-me-to-your-client-secret"
+    oidc_client_id: str = "iam-backend"
+    oidc_client_secret: str = "change-me-in-production"
     session_secret_key: str = "change-me-to-a-different-random-secret"
 
 
