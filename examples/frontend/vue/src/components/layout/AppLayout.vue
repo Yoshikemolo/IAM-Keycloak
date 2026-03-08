@@ -16,13 +16,16 @@
 
 import AppHeader from "./AppHeader.vue";
 import AppFooter from "./AppFooter.vue";
+import ErrorHandler from "@/components/common/ErrorHandler.vue";
 </script>
 
 <template>
   <div class="app-layout">
     <AppHeader />
     <main class="app-main">
-      <router-view />
+      <ErrorHandler>
+        <router-view />
+      </ErrorHandler>
     </main>
     <AppFooter />
   </div>

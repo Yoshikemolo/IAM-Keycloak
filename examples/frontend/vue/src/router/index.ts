@@ -12,6 +12,7 @@
  * | `/profile`      | ProfilePage       | Authenticated   |
  * | `/unauthorized` | UnauthorizedPage  | Public          |
  * | `/callback`     | CallbackPage      | Public (OIDC)   |
+ * | `*`             | NotFoundPage      | Public (404)    |
  */
 
 import { createRouter, createWebHistory } from "vue-router";
@@ -23,6 +24,7 @@ import AdminPage from "@/views/AdminPage.vue";
 import ProfilePage from "@/views/ProfilePage.vue";
 import UnauthorizedPage from "@/views/UnauthorizedPage.vue";
 import CallbackPage from "@/views/CallbackPage.vue";
+import NotFoundPage from "@/views/NotFoundPage.vue";
 
 /**
  * The application's Vue Router instance.
@@ -79,6 +81,13 @@ export const router = createRouter({
       name: "admin",
       component: AdminPage,
       beforeEnter: [requireAuth(), requireRole("admin")],
+    },
+
+    /* Catch-all 404 route -- must be last */
+    {
+      path: "/:pathMatch(.*)*",
+      name: "not-found",
+      component: NotFoundPage,
     },
   ],
 });
