@@ -17,9 +17,11 @@ FROM python:3.12-slim AS build
 
 WORKDIR /build
 
-# Install dependencies into a virtual environment for portability.
-RUN python -m venv /build/venv
-ENV PATH="/build/venv/bin:$PATH"
+# Install dependencies into a virtual environment.
+# The venv path must match the runtime location so that shebang
+# lines in scripts (e.g. uvicorn) resolve correctly after COPY.
+RUN python -m venv /app/venv
+ENV PATH="/app/venv/bin:$PATH"
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -34,7 +36,7 @@ RUN groupadd --gid 1000 appuser && \
 WORKDIR /app
 
 # Copy the virtual environment from the build stage.
-COPY --from=build /build/venv /app/venv
+COPY --from=build /app/venv /app/venv
 ENV PATH="/app/venv/bin:$PATH"
 
 # Copy application source.

@@ -98,9 +98,9 @@ async def logout(request: Request) -> RedirectResponse:
     # Clear the local session.
     request.session.clear()
 
-    # Build the Keycloak logout URL.
+    # Build the Keycloak logout URL using the browser-reachable issuer.
     logout_url = (
-        f"{settings.oidc_issuer}/protocol/openid-connect/logout"
+        f"{settings.oidc_issuer_browser}/protocol/openid-connect/logout"
         f"?post_logout_redirect_uri={settings.app_base_url}/"
         f"&client_id={settings.oidc_client_id}"
     )

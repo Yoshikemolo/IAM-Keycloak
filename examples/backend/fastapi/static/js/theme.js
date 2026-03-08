@@ -37,8 +37,8 @@
     var logo = document.getElementById("header-logo");
     if (logo) {
       logo.src = theme === "dark"
-        ? "/branding/dark-color-logo-with-claim.svg"
-        : "/branding/light-color-logo-with-claim.svg";
+        ? "/static/branding/dark-color-logo-with-claim.svg"
+        : "/static/branding/light-color-logo-with-claim.svg";
     }
 
     // Update toggle button icon.

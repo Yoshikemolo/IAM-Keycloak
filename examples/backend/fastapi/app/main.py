@@ -28,8 +28,6 @@ from app.routes import admin, auth, dashboard, errors, home, profile
 _BASE_DIR = Path(__file__).resolve().parent.parent
 _TEMPLATE_DIR = _BASE_DIR / "templates"
 _STATIC_DIR = _BASE_DIR / "static"
-_FONTS_DIR = _BASE_DIR.parent.parent.parent / "assets" / "fonts"
-_BRANDING_DIR = _BASE_DIR.parent.parent.parent / "assets" / "branding"
 
 
 def _get_locale(request: Request) -> str:
@@ -66,30 +64,17 @@ def create_app() -> FastAPI:
         description="Identity and Access Management example powered by Keycloak",
     )
 
-    # ---- Middleware ----------------------------------------------------------
-    application.add_middleware(
-        SessionMiddleware,
-        secret_key=settings.session_secret_key,
-        session_cookie="iam_session",
-        max_age=3600,
-    )
-
-    # ---- Static files -------------------------------------------------------
+    # ---- Static files (CSS, JS, fonts, branding) ----------------------------
     application.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
-
-    if _FONTS_DIR.exists():
-        application.mount("/fonts", StaticFiles(directory=str(_FONTS_DIR)), name="fonts")
-
-    if _BRANDING_DIR.exists():
-        application.mount(
-            "/branding", StaticFiles(directory=str(_BRANDING_DIR)), name="branding"
-        )
 
     # ---- Templates ----------------------------------------------------------
     templates = Jinja2Templates(directory=str(_TEMPLATE_DIR))
     application.state.templates = templates
 
-    # ---- Template context processor -----------------------------------------
+    # ---- Template context middleware -----------------------------------------
+    # Registered BEFORE SessionMiddleware so that Starlette's middleware
+    # stack places SessionMiddleware outermost (processes session cookies
+    # before this middleware accesses request.session).
     @application.middleware("http")
     async def inject_template_context(request: Request, call_next):  # type: ignore[no-untyped-def]
         """Inject common context variables into every template response.
@@ -130,6 +115,15 @@ def create_app() -> FastAPI:
             response.set_cookie("lang", locale, max_age=31536000)
 
         return response
+
+    # ---- Session middleware (must be added AFTER the template context
+    # middleware so Starlette places it outermost in the stack) ----------
+    application.add_middleware(
+        SessionMiddleware,
+        secret_key=settings.session_secret_key,
+        session_cookie="iam_session",
+        max_age=3600,
+    )
 
     # ---- Routes -------------------------------------------------------------
     application.include_router(home.router)

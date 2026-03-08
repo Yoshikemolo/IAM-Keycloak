@@ -33,9 +33,22 @@ class Settings(BaseSettings):
     app_secret_key: str = "change-me-to-a-random-secret-key"
     app_base_url: str = "http://localhost:8000"
     oidc_issuer: str = "http://localhost:8080/realms/iam-example"
+    oidc_issuer_public: str = ""
     oidc_client_id: str = "iam-backend"
     oidc_client_secret: str = "change-me-in-production"
     session_secret_key: str = "change-me-to-a-different-random-secret"
+
+    @property
+    def oidc_issuer_browser(self) -> str:
+        """Return the Keycloak issuer URL reachable by the browser.
+
+        In Docker, ``oidc_issuer`` points to the internal hostname
+        (e.g. ``iam-keycloak``) for server-to-server calls. The
+        ``oidc_issuer_public`` override provides the ``localhost``
+        URL that the browser can reach.  Falls back to ``oidc_issuer``
+        when not set (local development without Docker).
+        """
+        return self.oidc_issuer_public or self.oidc_issuer
 
 
 @lru_cache
