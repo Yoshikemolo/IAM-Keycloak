@@ -13,6 +13,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useCallback } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { LanguageSelector, useLanguage } from "@/components/common/LanguageSelector";
@@ -42,6 +43,30 @@ export function Header(): React.JSX.Element {
   const logo = theme === "dark" ? darkLogo : lightLogo;
   const userName = session?.user?.name ?? session?.user?.email ?? "";
 
+  /**
+   * Performs federated logout: clears the local NextAuth session and
+   * redirects the browser to Keycloak's end_session_endpoint so the
+   * Keycloak SSO session is also terminated.
+   */
+  const handleSignOut = useCallback(async () => {
+    const idToken = session?.idToken;
+    await signOut({ redirect: false });
+
+    const keycloakIssuer = process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER
+      || "http://localhost:8080/realms/iam-example";
+    const logoutUrl = new URL(
+      `${keycloakIssuer}/protocol/openid-connect/logout`,
+    );
+    logoutUrl.searchParams.set(
+      "post_logout_redirect_uri",
+      window.location.origin,
+    );
+    if (idToken) {
+      logoutUrl.searchParams.set("id_token_hint", idToken);
+    }
+    window.location.href = logoutUrl.toString();
+  }, [session?.idToken]);
+
   return (
     <header className="app-header">
       {/* -------- Left: Logo + Title -------- */}
@@ -69,7 +94,7 @@ export function Header(): React.JSX.Element {
             <span className="header-user-name">{userName}</span>
             <button
               className="btn btn-sm"
-              onClick={() => signOut()}
+              onClick={handleSignOut}
               type="button"
             >
               {t("header.logout")}
