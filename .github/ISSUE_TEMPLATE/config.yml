@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/Yoshikemolo/IAM-Keycloak/tree/main/doc
+    about: Browse the project documentation before opening an issue.
+  - name: Discussions
+    url: https://github.com/Yoshikemolo/IAM-Keycloak/discussions
+    about: Ask questions and share ideas in GitHub Discussions.
