@@ -9,7 +9,7 @@
  * - Internationalization via ngx-translate with HTTP JSON loader
  */
 
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
@@ -23,6 +23,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
 import { authConfig } from '@app/auth/auth.config';
 import { authInterceptor } from '@app/auth/auth.interceptor';
+import { GlobalErrorHandler } from '@app/services/error-handler.service';
 
 /**
  * Factory function for the ngx-translate HTTP loader.
@@ -45,6 +46,7 @@ export function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
  */
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAuth(authConfig),

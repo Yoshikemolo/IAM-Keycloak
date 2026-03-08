@@ -15,6 +15,7 @@
  * | `/profile`      | ProfilePage       | Authenticated   |
  * | `/unauthorized` | UnauthorizedPage  | Public          |
  * | `/callback`     | CallbackPage      | Public (OIDC)   |
+ * | `*`             | NotFoundPage      | Public (catch-all) |
  */
 
 import React from "react";
@@ -28,7 +29,9 @@ import { DashboardPage } from "@/pages/DashboardPage";
 import { AdminPage } from "@/pages/AdminPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { UnauthorizedPage } from "@/pages/UnauthorizedPage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
 import { CallbackPage } from "@/pages/CallbackPage";
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 /**
  * Root component of the IAM React example application.
@@ -63,7 +66,9 @@ export function App(): React.JSX.Element {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <DashboardPage />
+                  <ErrorBoundary>
+                    <DashboardPage />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -71,7 +76,9 @@ export function App(): React.JSX.Element {
               path="/profile"
               element={
                 <ProtectedRoute>
-                  <ProfilePage />
+                  <ErrorBoundary>
+                    <ProfilePage />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -82,11 +89,16 @@ export function App(): React.JSX.Element {
               element={
                 <ProtectedRoute>
                   <RequireRole role="admin">
-                    <AdminPage />
+                    <ErrorBoundary>
+                      <AdminPage />
+                    </ErrorBoundary>
                   </RequireRole>
                 </ProtectedRoute>
               }
             />
+
+            {/* Catch-all route for unknown paths */}
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

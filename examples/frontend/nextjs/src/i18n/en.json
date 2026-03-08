@@ -85,6 +85,17 @@
     "dark": "Dark",
     "toggle": "Toggle theme"
   },
+  "notFound": {
+    "title": "Page Not Found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to Home"
+  },
+  "error": {
+    "title": "Something Went Wrong",
+    "message": "An unexpected error occurred. Please try again or contact support if the problem persists.",
+    "retry": "Try Again",
+    "backHome": "Back to Home"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Something went wrong. Please try again.",

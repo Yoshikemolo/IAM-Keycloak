@@ -85,6 +85,17 @@
     "dark": "Oscuro",
     "toggle": "Cambiar tema"
   },
+  "notFound": {
+    "title": "Pagina No Encontrada",
+    "message": "La pagina que buscas no existe o ha sido movida.",
+    "backHome": "Volver al Inicio"
+  },
+  "error": {
+    "title": "Algo Salio Mal",
+    "message": "Se produjo un error inesperado. Intentalo de nuevo o contacta con soporte si el problema persiste.",
+    "retry": "Reintentar",
+    "backHome": "Volver al Inicio"
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Algo salio mal. Por favor, intentalo de nuevo.",

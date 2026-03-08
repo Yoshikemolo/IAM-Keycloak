@@ -9,7 +9,7 @@
  * - `/profile`     - Protected (requires authentication)
  * - `/unauthorized`- Public error page for insufficient permissions
  * - `/callback`    - OIDC redirect handler
- * - `**`           - Wildcard redirect to home
+ * - `**`           - Not Found (404) page
  */
 
 import { Routes } from '@angular/router';
@@ -22,6 +22,7 @@ import { AdminComponent } from '@app/pages/admin/admin.component';
 import { ProfileComponent } from '@app/pages/profile/profile.component';
 import { UnauthorizedComponent } from '@app/pages/unauthorized/unauthorized.component';
 import { CallbackComponent } from '@app/pages/callback/callback.component';
+import { NotFoundComponent } from '@app/pages/not-found/not-found.component';
 
 /**
  * Application route table.
@@ -60,6 +61,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '',
+    component: NotFoundComponent,
   },
 ];
