@@ -22,6 +22,7 @@ services:
       - .env.example
     environment:
       KEYCLOAK_URL: http://iam-keycloak:8080
+      KEYCLOAK_URL_PUBLIC: http://localhost:8080
       APP_URL: http://localhost:3002
     networks:
       - iam-network

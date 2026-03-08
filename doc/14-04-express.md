@@ -213,12 +213,22 @@ package.json
 PORT=3000
 NODE_ENV=development
 CORS_ORIGIN=http://localhost:3001
+APP_URL=http://localhost:3000
+
+# Session
+SESSION_SECRET=change-me-to-a-random-string
+# Set to "true" only when the app is behind a TLS-terminating reverse proxy.
+COOKIE_SECURE=false
 
 # Keycloak
 KEYCLOAK_URL=http://localhost:8080
 KEYCLOAK_REALM=tenant-acme
 KEYCLOAK_CLIENT_ID=acme-api
 KEYCLOAK_CLIENT_SECRET=your-client-secret
+
+# Public Keycloak URL reachable by the browser (for login and logout redirects).
+# Only needed in Docker where KEYCLOAK_URL points to an internal hostname.
+# KEYCLOAK_URL_PUBLIC=http://localhost:8080
 
 # Downstream services
 DOWNSTREAM_API_URL=http://localhost:4000
@@ -234,32 +244,66 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 // src/config/keycloak.js
 import 'dotenv/config';
 
+/** Internal Keycloak URL for server-to-server calls (token exchange, userinfo). */
 const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'https://iam.example.com';
+
+/**
+ * Browser-reachable Keycloak URL for authorization and logout redirects.
+ *
+ * In Docker, KEYCLOAK_URL points to an internal hostname (e.g. iam-keycloak)
+ * unreachable by the browser. This variable provides the localhost URL that
+ * the browser can reach. Falls back to KEYCLOAK_URL when not set.
+ */
+const KEYCLOAK_URL_PUBLIC = process.env.KEYCLOAK_URL_PUBLIC || KEYCLOAK_URL;
+
 const REALM = process.env.KEYCLOAK_REALM || 'tenant-acme';
 
 export const keycloakConfig = {
   url: KEYCLOAK_URL,
+  urlPublic: KEYCLOAK_URL_PUBLIC,
   realm: REALM,
   clientId: process.env.KEYCLOAK_CLIENT_ID || 'acme-api',
   clientSecret: process.env.KEYCLOAK_CLIENT_SECRET || '',
 
+  /** Issuer must match the iss claim in tokens (use the public URL). */
   get issuer() {
-    return `${this.url}/realms/${this.realm}`;
+    return `${this.urlPublic}/realms/${this.realm}`;
   },
 
+  /** JWKS endpoint -- server-to-server (use internal URL). */
   get jwksUri() {
     return `${this.url}/realms/${this.realm}/protocol/openid-connect/certs`;
   },
 
+  /** Token endpoint -- server-to-server (use internal URL). */
   get tokenEndpoint() {
     return `${this.url}/realms/${this.realm}/protocol/openid-connect/token`;
   },
 
+  /** Userinfo endpoint -- server-to-server (use internal URL). */
   get userinfoEndpoint() {
     return `${this.url}/realms/${this.realm}/protocol/openid-connect/userinfo`;
   },
+
+  /** Authorization URL -- browser-facing (use public URL). */
+  get authorizationUrl() {
+    return `${this.urlPublic}/realms/${this.realm}/protocol/openid-connect/auth`;
+  },
 };
 ```
+
+> **Important -- Dual URL Pattern for Docker Deployments**
+>
+> When running inside Docker, the Express container reaches Keycloak via its
+> internal hostname (e.g. `http://iam-keycloak:8080`), but the browser must use
+> a URL it can resolve (e.g. `http://localhost:8080`). Keycloak with
+> `KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true` always reports the public hostname as
+> the `iss` claim in tokens. Therefore:
+>
+> - **Browser-facing URLs** (authorization, logout) must use `KEYCLOAK_URL_PUBLIC`.
+> - **Server-to-server URLs** (token exchange, JWKS, userinfo) use `KEYCLOAK_URL`.
+> - The **issuer** configured in the OIDC strategy must match the public URL
+>   (it is compared against the `iss` claim in the ID token).
 
 ---
 
@@ -1589,11 +1633,13 @@ services:
       dockerfile: Dockerfile
     environment:
       PORT: 3000
-      NODE_ENV: development
+      NODE_ENV: production
       KEYCLOAK_URL: http://iam-keycloak:8080
+      KEYCLOAK_URL_PUBLIC: http://localhost:8080
       KEYCLOAK_REALM: tenant-acme
       KEYCLOAK_CLIENT_ID: acme-api
       KEYCLOAK_CLIENT_SECRET: change-me
+      APP_URL: http://localhost:3000
       CORS_ORIGIN: http://localhost:3001
       OTEL_SERVICE_NAME: express-acme-api
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
